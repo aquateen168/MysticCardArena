@@ -50,12 +50,10 @@
     <!-- NEWS + VIDEOS -->
     <div class="max-w-7xl mx-auto px-6 pt-6 pb-2 border-b border-white/10">
         <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
-            <!-- PokéBeach -->
             <div>
                 <div class="flex items-center gap-3 mb-3"><i class="fas fa-newspaper text-[#ee1515]"></i><h3 class="uppercase tracking-widest text-sm font-bold">PokéBeach Latest News</h3></div>
                 <div id="newsFeed" class="flex gap-6 overflow-x-auto pb-4 snap-x snap-mandatory scrollbar-hide"></div>
             </div>
-            <!-- The Card Arena Videos (now with preview) -->
             <div>
                 <div class="flex items-center gap-3 mb-3"><i class="fab fa-youtube text-red-500"></i><h3 class="uppercase tracking-widest text-sm font-bold">The Card Arena • Latest Videos</h3></div>
                 <div id="videosFeed" class="flex gap-6 overflow-x-auto pb-4 snap-x snap-mandatory scrollbar-hide"></div>
@@ -98,7 +96,7 @@
         </div>
     </div>
 
-    <!-- VIDEO PREVIEW MODAL -->
+    <!-- VIDEO MODAL -->
     <div onclick="if(event.target.id==='videoModalBackdrop')hideVideoModal()" id="videoModalBackdrop" class="hidden fixed inset-0 bg-black/90 flex items-center justify-center z-[10000]">
         <div onclick="event.stopImmediatePropagation()" class="bg-black rounded-3xl max-w-4xl w-full mx-4 overflow-hidden">
             <div class="flex justify-end p-4">
@@ -114,7 +112,7 @@
             <i class="fas fa-info-circle"></i>
             Live TCGPlayer prices • Global My Collection • Click videos to preview with auto-play
         </p>
-        <div class="mt-6 text-[10px]">v13 • Made with ❤️ for Crucial Miyagi • Powered by Pokémon TCG API + PokéBeach + PriceCharting</div>
+        <div class="mt-6 text-[10px]">v13 • Made with ❤️ for Crucial Miyagi</div>
     </div>
 
     <script>
@@ -220,9 +218,6 @@
             if (!setId) return;
             
             currentSetId = setId;
-            const set = allSets.find(s => s.id === setId);
-            localStorage.setItem('lastSelectedSet', setId);
-            
             document.getElementById('loadingIndicator').classList.remove('hidden');
             document.getElementById('cardsGrid').innerHTML = '';
             
@@ -239,7 +234,6 @@
                 const data = await res.json();
                 currentCards = data.data;
                 cardCache[setId] = currentCards;
-                set.totalCards = currentCards.length;
                 renderCards();
                 updateGlobalStats();
             } catch (e) {
@@ -419,12 +413,12 @@
             currentModalCardId = null;
         }
         
-        // NEW VIDEO MODAL FUNCTIONS
+        // VIDEO MODAL
         function playVideo(videoId) {
             const container = document.getElementById('videoPlayerContainer');
             container.innerHTML = `
                 <iframe width="100%" height="100%" 
-                        src="https://www.youtube.com/embed/${videoId}?autoplay=1&rel=0" 
+                        src="https://www.youtube.com/embed/${videoId}?autoplay=1" 
                         title="YouTube video player" frameborder="0" 
                         allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
                         allowfullscreen></iframe>`;
@@ -512,18 +506,12 @@
                 const data = await res.json();
                 container.innerHTML = '';
                 data.items.slice(0, 6).forEach(item => {
-                    // Extract video ID from YouTube link
                     let videoId = '';
-                    if (item.link.includes('watch?v=')) {
-                        videoId = item.link.split('watch?v=')[1].split('&')[0];
-                    } else if (item.link.includes('/embed/')) {
-                        videoId = item.link.split('/embed/')[1];
-                    }
-                    
+                    if (item.link.includes('watch?v=')) videoId = item.link.split('watch?v=')[1].split('&')[0];
                     const div = document.createElement('div');
                     div.className = 'flex-shrink-0 w-80 bg-white/5 hover:bg-white/10 rounded-3xl p-4 snap-start transition-colors cursor-pointer';
                     div.innerHTML = `
-                        <div onclick="playVideo('${videoId}')" class="block">
+                        <div onclick="playVideo('${videoId}')" class="block cursor-pointer">
                             <div class="relative">
                                 <img src="https://img.youtube.com/vi/${videoId}/hqdefault.jpg" alt="${item.title}" class="w-full rounded-2xl">
                                 <div class="absolute inset-0 flex items-center justify-center">
@@ -555,7 +543,7 @@
                 await loadSetCards();
             }
             
-            console.log('%c🚀 PokéCollector v13 – Video preview modal with autoplay added!', 'color:#ee1515; font-family:monospace');
+            console.log('%c🚀 PokéCollector v13 – Cards should now load!', 'color:#ee1515; font-family:monospace');
         }
         
         window.onload = initializeApp;
