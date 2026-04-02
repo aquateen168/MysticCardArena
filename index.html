@@ -20,45 +20,6 @@
         
         .spinner { animation: spin 1s linear infinite; }
         .card-grid { grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); }
-        
-        /* Toggle switch */
-        .toggle-switch {
-            position: relative;
-            display: inline-block;
-            width: 110px;
-            height: 34px;
-        }
-        .toggle-switch input { opacity: 0; width: 0; height: 0; }
-        .slider {
-            position: absolute;
-            cursor: pointer;
-            top: 0; left: 0; right: 0; bottom: 0;
-            background-color: #3b4cca;
-            transition: .4s;
-            border-radius: 34px;
-        }
-        .slider:before {
-            position: absolute;
-            content: "";
-            height: 26px; width: 26px;
-            left: 4px; bottom: 4px;
-            background-color: white;
-            transition: .4s;
-            border-radius: 50%;
-        }
-        input:checked + .slider { background-color: #ee1515; }
-        input:checked + .slider:before { transform: translateX(76px); }
-        .slider-labels {
-            position: absolute;
-            top: 50%;
-            transform: translateY(-50%);
-            width: 100%;
-            display: flex;
-            justify-content: space-between;
-            padding: 0 10px;
-            font-size: 10px;
-            pointer-events: none;
-        }
     </style>
 </head>
 <body class="bg-gradient-to-br from-[#1a1a2e] to-[#16213e] text-white min-h-screen">
@@ -100,7 +61,7 @@
         </div>
     </div>
 
-    <!-- NEWS + VIDEOS (kept simple, no quick view) -->
+    <!-- NEWS + VIDEOS (kept simple like v11) -->
     <div class="max-w-7xl mx-auto px-6 pt-6 pb-2 border-b border-white/10">
         <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
             <div>
@@ -152,7 +113,7 @@
     <div class="max-w-7xl mx-auto px-6 py-12 text-center text-xs text-white/40 border-t border-white/10 mt-12">
         <p class="flex items-center justify-center gap-2">
             <i class="fas fa-info-circle"></i>
-            v11 + Price Source Toggle (TCGPlayer ↔ eBay Avg)
+            v11 + Price Source Toggle (TCGPlayer / eBay Avg)
         </p>
         <div class="mt-6 text-[10px]">Made with ❤️ for Crucial Miyagi</div>
     </div>
@@ -234,11 +195,11 @@
             if (priceSource === 'tcgplayer') {
                 return getTcgPlayerMarketPrice(card);
             } else {
-                // eBay Avg placeholder - for now we use ~90% of TCGPlayer as realistic average
+                // Simple eBay Avg placeholder (realistic average sold price)
                 const tcg = getTcgPlayerMarketPrice(card);
                 if (tcg === 'N/A') return 'N/A';
                 const num = parseFloat(tcg.replace('$', ''));
-                return '$' + (num * 0.9).toFixed(2); // simple placeholder
+                return '$' + (num * 0.95).toFixed(2); // 95% of TCGPlayer as placeholder for eBay sold avg
             }
         }
 
@@ -535,7 +496,7 @@
                 await loadSetCards();
             }
             
-            console.log('%c🚀 PokéCollector v11 + Price Source Toggle (TCGPlayer / eBay Avg) added!', 'color:#ee1515; font-family:monospace');
+            console.log('%c🚀 PokéCollector v11 + Price Source Toggle added!', 'color:#ee1515; font-family:monospace');
         }
         
         window.onload = initializeApp;
