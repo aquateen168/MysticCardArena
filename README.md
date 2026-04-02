@@ -50,7 +50,19 @@ A beautiful, fast, browser-based web app built just for modern Pokémon cards (2
 
 ---
 
-### ❤️ Credits
+### 🙏 Credits & APIs
+
+- **Pokémon TCG API** — All card data, images, and live TCGPlayer market prices  
+  → https://pokemontcg.io/
+
+- **PokéBeach** — Latest news headlines via RSS feed  
+  → https://www.pokebeach.com/
+
+- **PriceCharting** — Direct links to exact card variant price charts  
+  → https://www.pricecharting.com/
+
+- **The Card Arena** — Latest YouTube videos  
+  → https://www.youtube.com/channel/UCwrDye0cqBKJdmUFoVjfOcA
 
 Made with love for **Crucial Miyagi**  
 Built live with Grok by xAI  
