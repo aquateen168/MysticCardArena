@@ -4,8 +4,7 @@
 
 A beautiful, fast, browser-based web app built just for modern Pokémon cards (2021 and newer). Mark what you own, see real TCGPlayer market prices, and track your collection value instantly.
 
-<image-card alt="PokéCollector Screenshot" src="[https://github.com/aquateen168/MysticCardArena/blob/main/screenshot.png]" ></image-card>
-*(Add a screenshot here later — just take one and upload it as `screenshot.png`)*
+![PokéCollector Screenshot](https://github.com/aquateen168/MysticCardArena/blob/main/screenshot.png)
 
 ---
 
@@ -22,7 +21,6 @@ A beautiful, fast, browser-based web app built just for modern Pokémon cards (2
 - ✅ One-click **Reset Collection** button  
 - ✅ Fully responsive (works great on mobile)  
 - ✅ 100% client-side — no server needed
-
 ---
 
 ### 🌐 Live Demo
