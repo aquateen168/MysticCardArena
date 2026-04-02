@@ -21,14 +21,13 @@ A beautiful, fast, browser-based web app built just for modern Pokémon cards (2
 - ✅ One-click **Reset Collection** button  
 - ✅ Fully responsive (works great on mobile)  
 - ✅ 100% client-side — no server needed
+
 ---
 
 ### 🌐 Live Demo
 
 **Your site is live at:**  
-[https://YOUR-USERNAME.github.io/poke-collector](https://YOUR-USERNAME.github.io/poke-collector)
-
-*(Replace `YOUR-USERNAME` with your actual GitHub username after you enable GitHub Pages)*
+[https://aquateen168.github.io/MysticCardArena](https://aquateen168.github.io/MysticCardArena)
 
 ---
 
@@ -36,7 +35,7 @@ A beautiful, fast, browser-based web app built just for modern Pokémon cards (2
 
 1. Open the site  
 2. Pick a modern set (2021+) from the dropdown  
-3. Click the + on any card to mark it owned  
+3. Click the **+** on any card to mark it owned  
 4. Prices and total value update automatically  
 5. Click any card for full details and variant switching
 
@@ -54,7 +53,7 @@ A beautiful, fast, browser-based web app built just for modern Pokémon cards (2
 ### ❤️ Credits
 
 Made with love for **Crucial Miyagi**  
-Built live with Grok by xAI
+Built live with Grok by xAI  
 
 **Version 11** • Last updated April 2026
 
@@ -65,3 +64,6 @@ Built live with Grok by xAI
 This project is open-source and free to use. Feel free to fork and customize it!
 
 ---
+
+**Made for the Pokémon community** 🐾  
+Got feedback or want a new feature? Open an issue!
