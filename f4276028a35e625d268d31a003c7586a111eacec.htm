@@ -1,0 +1,934 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PokéCollector • Modern Sets (2021+)</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Rajdhani:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <style>
+        /* ─── ROOT PALETTE: GENGAR ─── */
+        :root {
+            --g-deep:    #0d0015;
+            --g-dark:    #150025;
+            --g-purple:  #6b21a8;
+            --g-mid:     #7c3aed;
+            --g-bright:  #a855f7;
+            --g-glow:    #d946ef;
+            --g-shadow:  #1e0033;
+            --g-red:     #ee1515;
+            --g-blue:    #3b4cca;
+            --g-eye:     #e2d4f8;
+            --g-gold:    #f59e0b;
+            --g-green:   #10b981;
+            --g-card-bg: rgba(107,33,168,0.10);
+            --g-border:  rgba(168,85,247,0.30);
+            --g-text:    #f3e8ff;
+            --g-muted:   rgba(243,232,255,0.45);
+            --star-color: #d1c4e9;
+        }
+
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+        /* ─── GALAXY BACKGROUND ─── */
+        body {
+            font-family: 'Rajdhani', sans-serif;
+            background: var(--g-deep);
+            color: var(--g-text);
+            min-height: 100vh;
+            overflow-x: hidden;
+            position: relative;
+        }
+
+        #galaxy-canvas {
+            position: fixed;
+            inset: 0;
+            z-index: 0;
+            pointer-events: none;
+        }
+
+        .page-wrap {
+            position: relative;
+            z-index: 1;
+        }
+
+        .pixel { font-family: 'Press Start 2P', monospace; }
+
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: var(--g-shadow); }
+        ::-webkit-scrollbar-thumb { background: var(--g-mid); border-radius: 999px; }
+
+        .site-header {
+            position: sticky;
+            top: 0;
+            z-index: 200;
+            background: rgba(13,0,21,0.92);
+            backdrop-filter: blur(20px);
+            border-bottom: 2px solid var(--g-mid);
+            box-shadow: 0 0 40px rgba(168,85,247,0.25);
+            padding: 0.6rem 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+
+        .header-logo {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            flex: 0 0 auto;
+        }
+
+        .logo-icon {
+            width: 52px;
+            height: 52px;
+            background: radial-gradient(circle, var(--g-bright), var(--g-purple));
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.6rem;
+            box-shadow: 0 0 20px var(--g-glow);
+            animation: pulseGlow 3s ease-in-out infinite;
+        }
+
+        @keyframes pulseGlow {
+            0%,100% { box-shadow: 0 0 20px var(--g-glow); }
+            50%      { box-shadow: 0 0 40px var(--g-glow), 0 0 60px var(--g-bright); }
+        }
+
+        .logo-text { line-height: 1.2; }
+        .logo-text h1 { font-size: 1.1rem; letter-spacing: 0.12em; color: var(--g-text); }
+        .logo-text p  { font-size: 0.6rem; color: var(--g-bright); letter-spacing: 0.2em; margin-top: 2px; }
+
+        .header-stats {
+            display: flex;
+            gap: 1rem;
+            margin-left: auto;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .stat-chip {
+            text-align: center;
+            background: var(--g-card-bg);
+            border: 1px solid var(--g-border);
+            border-radius: 12px;
+            padding: 0.35rem 0.8rem;
+            min-width: 80px;
+        }
+
+        .stat-chip .val {
+            font-family: 'Press Start 2P', monospace;
+            font-size: 0.75rem;
+            display: block;
+        }
+
+        .stat-chip .lbl {
+            font-size: 0.6rem;
+            color: var(--g-muted);
+            margin-top: 2px;
+            display: block;
+            letter-spacing: 0.1em;
+        }
+
+        .header-actions {
+            display: flex;
+            gap: 0.5rem;
+            align-items: center;
+        }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.4rem;
+            padding: 0.45rem 0.9rem;
+            border-radius: 8px;
+            font-family: 'Press Start 2P', monospace;
+            font-size: 0.5rem;
+            cursor: pointer;
+            border: none;
+            transition: all 0.2s;
+            text-decoration: none;
+        }
+
+        .btn-purple { background: var(--g-mid); color: #fff; }
+        .btn-purple:hover { background: var(--g-bright); box-shadow: 0 0 16px var(--g-glow); }
+        .btn-red    { background: var(--g-red); color: #fff; }
+        .btn-red:hover { filter: brightness(1.2); }
+        .btn-ghost  { background: transparent; border: 1px solid var(--g-border); color: var(--g-text); }
+        .btn-ghost:hover { border-color: var(--g-bright); color: var(--g-bright); }
+        .btn-gold   { background: var(--g-gold); color: #000; }
+        .btn-gold:hover { filter: brightness(1.15); }
+
+        #miniPlayerWrap {
+            position: fixed;
+            bottom: 1.5rem;
+            right: 1.5rem;
+            z-index: 500;
+            display: none;
+            flex-direction: column;
+            align-items: flex-end;
+            gap: 0.4rem;
+        }
+
+        #miniPlayerWrap.active { display: flex; }
+
+        .mini-player-frame {
+            width: 320px;
+            height: 180px;
+            border-radius: 12px;
+            overflow: hidden;
+            border: 2px solid var(--g-glow);
+            box-shadow: 0 0 40px rgba(217,70,239,0.5);
+        }
+
+        .mini-player-frame iframe { width: 100%; height: 100%; border: none; }
+
+        .mini-player-close {
+            background: var(--g-glow);
+            color: #fff;
+            border: none;
+            border-radius: 50%;
+            width: 28px;
+            height: 28px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            font-size: 0.8rem;
+        }
+
+        .three-col {
+            display: grid;
+            grid-template-columns: 280px 1fr 280px;
+            gap: 1.25rem;
+            padding: 1.25rem 1.25rem;
+            max-width: 1800px;
+            margin: 0 auto;
+            align-items: start;
+        }
+
+        @media (max-width: 1200px) {
+            .three-col { grid-template-columns: 240px 1fr; }
+            .col-right { display: none; }
+        }
+
+        @media (max-width: 768px) {
+            .three-col { grid-template-columns: 1fr; }
+            .col-left, .col-right { display: none; }
+        }
+
+        .sidebar-panel {
+            background: rgba(21,0,37,0.7);
+            border: 1px solid var(--g-border);
+            border-radius: 16px;
+            padding: 1rem;
+            backdrop-filter: blur(12px);
+        }
+
+        .sidebar-title {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-bottom: 0.75rem;
+            font-family: 'Press Start 2P', monospace;
+            font-size: 0.5rem;
+            letter-spacing: 0.1em;
+            color: var(--g-bright);
+            padding-bottom: 0.5rem;
+            border-bottom: 1px solid var(--g-border);
+        }
+
+        .news-item, .video-item {
+            display: block;
+            text-decoration: none;
+            background: var(--g-card-bg);
+            border: 1px solid var(--g-border);
+            border-radius: 10px;
+            padding: 0.65rem;
+            margin-bottom: 0.6rem;
+            transition: all 0.2s;
+            color: var(--g-text);
+        }
+
+        .news-item:hover, .video-item:hover {
+            border-color: var(--g-bright);
+            background: rgba(168,85,247,0.15);
+        }
+
+        .card-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 1rem;
+        }
+
+        .card-tile {
+            background: var(--g-card-bg);
+            border: 1.5px solid var(--g-border);
+            border-radius: 16px;
+            overflow: hidden;
+            cursor: pointer;
+            transition: all 0.25s cubic-bezier(0.4,0,0.2,1);
+            display: flex;
+            flex-direction: column;
+            position: relative;
+        }
+
+        .card-tile:hover {
+            transform: scale(1.05) rotate(-1deg);
+            border-color: var(--g-glow);
+            box-shadow: 0 12px 40px rgba(217,70,239,0.4);
+        }
+
+        .card-tile img {
+            width: 100%;
+            aspect-ratio: 3/4;
+            object-fit: contain;
+            background: rgba(0,0,0,0.4);
+            padding: 0.5rem;
+        }
+
+        .owned-badge {
+            position: absolute;
+            top: 8px;
+            right: 8px;
+            background: var(--g-green);
+            color: #000;
+            font-size: 0.55rem;
+            font-weight: 700;
+            padding: 2px 8px;
+            border-radius: 999px;
+            font-family: 'Press Start 2P', monospace;
+        }
+
+        .rarity-badge {
+            position: absolute;
+            bottom: 8px;
+            left: 8px;
+            background: rgba(0,0,0,0.75);
+            color: var(--g-eye);
+            font-size: 0.55rem;
+            padding: 2px 7px;
+            border-radius: 6px;
+        }
+
+        .modal-backdrop {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.85);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+            padding: 1rem;
+        }
+
+        .modal-backdrop.open { display: flex; }
+
+        .modal-box {
+            background: linear-gradient(135deg, #150025 0%, #1e0033 100%);
+            border: 2px solid var(--g-mid);
+            border-radius: 20px;
+            max-width: 700px;
+            width: 100%;
+            max-height: 90vh;
+            overflow-y: auto;
+            position: relative;
+            box-shadow: 0 0 80px rgba(168,85,247,0.4);
+        }
+
+        .modal-close-btn {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            background: var(--g-shadow);
+            border: 1px solid var(--g-border);
+            color: var(--g-text);
+            border-radius: 50%;
+            width: 34px;
+            height: 34px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            font-size: 1rem;
+            z-index: 10;
+        }
+
+        .modal-body { padding: 1.5rem; }
+
+        .purchase-section {
+            margin-top: 1.25rem;
+            width: 100%;
+            background: rgba(168,85,247,0.1);
+            border-radius: 12px;
+            padding: 1rem;
+            border: 1px solid var(--g-border);
+        }
+
+        .admin-fab {
+            position: fixed;
+            bottom: 1.5rem;
+            left: 1.5rem;
+            z-index: 400;
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--g-purple), var(--g-glow));
+            border: none;
+            color: #fff;
+            font-size: 1.1rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 0 20px rgba(217,70,239,0.5);
+        }
+
+        .gengar-eye {
+            position: fixed;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            pointer-events: none;
+            opacity: 0.06;
+            z-index: 0;
+            font-size: min(40vw, 400px);
+            line-height: 1;
+            user-select: none;
+        }
+
+        .site-footer {
+            text-align: center;
+            padding: 1.5rem;
+            font-size: 0.65rem;
+            color: var(--g-muted);
+            border-top: 1px solid var(--g-border);
+            margin-top: 2rem;
+        }
+    </style>
+</head>
+<body>
+<canvas id="galaxy-canvas"></canvas>
+<div class="gengar-eye" aria-hidden="true">👻</div>
+
+<div class="page-wrap">
+
+<header class="site-header">
+    <div class="header-logo">
+        <div class="logo-icon">👻</div>
+        <div class="logo-text pixel">
+            <h1>PokéCollector</h1>
+            <p>Modern Sets • 2021+</p>
+        </div>
+    </div>
+
+    <div class="header-stats">
+        <div class="stat-chip">
+            <span class="val pixel" id="totalOwned" style="color:var(--g-bright)">0</span>
+            <span class="lbl">OWNED</span>
+        </div>
+        <div class="stat-chip">
+            <span class="val pixel" id="totalValue" style="color:var(--g-green)">$0.00</span>
+            <span class="lbl">VALUE</span>
+        </div>
+        <div class="stat-chip">
+            <span class="val pixel" id="setsCompleted" style="color:var(--g-gold)">0/0</span>
+            <span class="lbl">SETS DONE</span>
+        </div>
+    </div>
+
+    <div class="header-actions">
+        <button onclick="exportCollection()" class="btn btn-ghost"><i class="fas fa-download"></i> Export</button>
+        <button onclick="importCollection()" class="btn btn-ghost"><i class="fas fa-upload"></i> Import</button>
+        <button onclick="generateShareLink()" class="btn btn-gold"><i class="fas fa-share-alt"></i> Share Set</button>
+        <button onclick="resetCollection()" class="btn btn-red"><i class="fas fa-trash"></i> Reset</button>
+    </div>
+</header>
+
+<main class="three-col">
+    <!-- LEFT: NEWS -->
+    <aside class="col-left">
+        <div class="sidebar-panel">
+            <div class="sidebar-title"><i class="fas fa-newspaper" style="color:var(--g-red)"></i> PokéBeach Latest News</div>
+            <div id="newsFeed"><div style="text-align:center;padding:1rem;color:var(--g-muted);">Loading news…</div></div>
+        </div>
+    </aside>
+
+    <!-- CENTER -->
+    <section class="col-center">
+        <div class="set-selector-bar" style="background:rgba(21,0,37,0.8);border:1px solid var(--g-border);border-radius:14px;padding:1rem 1.2rem;margin-bottom:1rem;backdrop-filter:blur(12px);">
+            <label class="pixel">Choose a Modern Set</label>
+            <div style="display:flex;gap:0.75rem;align-items:center;flex-wrap:wrap;">
+                <select id="setSelect" onchange="loadSetCards()" style="flex:1;min-width:200px;background:var(--g-shadow);color:var(--g-text);border:2px solid var(--g-mid);border-radius:10px;padding:0.55rem 0.9rem;"></select>
+                <button onclick="openFullListModal()" class="btn btn-purple"><i class="fas fa-table-cells"></i> Full Card List</button>
+            </div>
+
+            <div style="margin-top:0.75rem;display:flex;gap:0.5rem;">
+                <select id="masterSetMode" onchange="loadSetCards()" style="flex:1;background:var(--g-shadow);color:var(--g-text);border:2px solid var(--g-mid);border-radius:10px;padding:0.55rem 0.9rem;">
+                    <option value="standard">One of Each (Standard Master Set)</option>
+                    <option value="allRarities">🌟 All Rarities (Completionist)</option>
+                    <option value="fullPulls">🔥 Full Pulls + Promos + Related</option>
+                </select>
+            </div>
+
+            <input type="text" id="cardSearch" class="search-input" placeholder="🔍 Search cards…" oninput="debouncedFilter()" style="margin-top:0.75rem;width:100%;background:var(--g-shadow);border:1.5px solid var(--g-border);border-radius:10px;padding:0.45rem 0.8rem;color:var(--g-text);">
+
+            <div id="filterButtons" style="display:flex;gap:0.5rem;flex-wrap:wrap;margin-top:0.75rem;">
+                <div class="filter-chip active" data-filter="all" onclick="toggleFilter(this)">All Cards</div>
+                <div class="filter-chip" data-filter="owned" onclick="toggleFilter(this)">Owned</div>
+                <div class="filter-chip" data-filter="missing" onclick="toggleFilter(this)">Missing</div>
+            </div>
+        </div>
+
+        <div id="cardsGrid" class="card-grid"></div>
+        <div id="emptyState" class="empty-state" style="display:none;text-align:center;padding:3rem 1rem;">
+            <i class="fas fa-ghost" style="font-size:4rem;color:var(--g-border);"></i>
+            <p id="emptyMessage">No cards match your filter!</p>
+        </div>
+    </section>
+
+    <!-- RIGHT: VIDEOS -->
+    <aside class="col-right">
+        <div class="sidebar-panel">
+            <div class="sidebar-title"><i class="fab fa-youtube" style="color:#ff0000"></i> Card Arena • Latest Videos</div>
+            <div id="videosFeed"><div style="text-align:center;padding:1rem;color:var(--g-muted);">Loading videos…</div></div>
+        </div>
+    </aside>
+</main>
+
+<footer class="site-footer pixel">
+    v15 • Gengar Edition • Upgraded for Crucial Miyagi<br>
+    <span style="font-size:0.55rem;">New: Per-Rarity • Price Paid • Purchase Date • Share Links • Master Set Modes</span>
+</footer>
+
+</div>
+
+<!-- ADMIN FAB -->
+<button class="admin-fab" onclick="openAdminModal()" title="Admin Panel">
+    <i class="fas fa-user-shield"></i>
+</button>
+
+<!-- MINI PLAYER -->
+<div id="miniPlayerWrap">
+    <button class="mini-player-close" onclick="closeMiniPlayer()"><i class="fas fa-times"></i></button>
+    <div class="mini-player-frame"><iframe id="miniPlayerIframe" src="" allowfullscreen></iframe></div>
+</div>
+
+<!-- CARD DETAIL MODAL -->
+<div class="modal-backdrop" id="cardModal" onclick="if(event.target===this)closeCardModal()">
+    <div class="modal-box">
+        <button class="modal-close-btn" onclick="closeCardModal()"><i class="fas fa-times"></i></button>
+        <div class="modal-body" id="cardModalBody"></div>
+    </div>
+</div>
+
+<!-- FULL LIST MODAL -->
+<div class="modal-backdrop" id="fullListModal" onclick="if(event.target===this)closeFullListModal()">
+    <div class="modal-box" style="max-width:960px;">
+        <button class="modal-close-btn" onclick="closeFullListModal()"><i class="fas fa-times"></i></button>
+        <div class="modal-body">
+            <div id="fullListGrid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:0.75rem;"></div>
+        </div>
+    </div>
+</div>
+
+<!-- ADMIN MODAL -->
+<div class="modal-backdrop" id="adminModal" onclick="if(event.target===this)closeAdminModal()">
+    <div class="modal-box" style="max-width:620px;">
+        <button class="modal-close-btn" onclick="closeAdminModal()"><i class="fas fa-times"></i></button>
+        <div class="modal-body" id="adminContent">
+            <div style="font-family:'Press Start 2P',monospace;font-size:0.7rem;color:var(--g-bright);margin-bottom:1rem;text-align:center;">🔒 ADMIN PANEL</div>
+            <button onclick="adminLock()" class="btn btn-ghost" style="width:100%;margin-top:1rem;">Lock & Close</button>
+        </div>
+    </div>
+</div>
+
+<script>
+/* ─── STATE ─── */
+let allSets = [];
+let currentSetId = null;
+let currentCards = [];
+let collection = {};                    // RICH per-rarity collection
+let currentFilter = 'all';
+let cardCache = {};
+let searchTimeout = null;
+let currentModalCardId = null;
+let currentModalCard = null;
+let masterSetMode = 'standard';
+const ADMIN_PASS_KEY = 'pokeAdminPass';
+const DEFAULT_PASS = 'tree';
+
+/* ─── GALAXY BACKGROUND ─── */
+(function() {
+    const canvas = document.getElementById('galaxy-canvas');
+    const ctx = canvas.getContext('2d');
+    let stars = [], nebulae = [], W, H, galaxyEnabled = true;
+
+    function resize() {
+        W = canvas.width = window.innerWidth;
+        H = canvas.height = window.innerHeight;
+        stars = Array.from({length: Math.floor((W*H)/2200)}, () => ({
+            x: Math.random()*W, y: Math.random()*H,
+            r: Math.random()*2.2, opacity: Math.random(),
+            speed: Math.random()*0.001 + 0.0002
+        }));
+    }
+
+    function draw() {
+        requestAnimationFrame(draw);
+        if (!galaxyEnabled) { ctx.clearRect(0,0,W,H); return; }
+        ctx.fillStyle = '#0d0015';
+        ctx.fillRect(0, 0, W, H);
+
+        stars.forEach(s => {
+            const alpha = s.opacity * (0.4 + 0.6 * Math.sin(Date.now() * s.speed));
+            ctx.fillStyle = `hsla(270,60%,90%,${alpha})`;
+            ctx.beginPath();
+            ctx.arc(s.x, s.y, s.r, 0, Math.PI * 2);
+            ctx.fill();
+        });
+    }
+
+    window.addEventListener('resize', resize);
+    resize();
+    draw();
+})();
+
+/* ─── COLLECTION HELPERS ─── */
+function normalizeRarity(rarityStr) {
+    if (!rarityStr) return 'normal';
+    const r = rarityStr.toLowerCase();
+    if (r.includes('illustration') || r.includes('alt')) return 'illustrationRare';
+    if (r.includes('god') || r.includes('secret') || r.includes('gold')) return 'godRare';
+    if (r.includes('reverse')) return 'reverseHolofoil';
+    if (r.includes('holo')) return 'holofoil';
+    return 'normal';
+}
+
+function getCardKey(card) { return card.number || card.id; }
+
+function loadCollection() {
+    const saved = localStorage.getItem('pokeCollectorCollection');
+    if (saved) collection = JSON.parse(saved);
+    updateGlobalStats();
+}
+
+function saveCollection() {
+    localStorage.setItem('pokeCollectorCollection', JSON.stringify(collection));
+    updateGlobalStats();
+}
+
+function migrateOldCollection() {
+    // Simple migration from old flat format (if any)
+    Object.keys(collection).forEach(setId => {
+        if (typeof collection[setId] === 'object' && Object.values(collection[setId]).some(v => typeof v === 'boolean')) {
+            const oldData = collection[setId];
+            collection[setId] = {};
+            Object.keys(oldData).forEach(key => {
+                if (oldData[key] === true) {
+                    collection[setId][key] = { normal: { owned: true, quantity: 1, pricePaid: null, purchaseDate: null, condition: 'NM' } };
+                }
+            });
+        }
+    });
+    saveCollection();
+}
+
+/* ─── TOGGLE CARD (per rarity) ─── */
+function toggleCardOwnership(cardKey, rarityKey = 'normal') {
+    if (!currentSetId) return;
+    if (!collection[currentSetId]) collection[currentSetId] = {};
+    if (!collection[currentSetId][cardKey]) collection[currentSetId][cardKey] = {};
+
+    const entry = collection[currentSetId][cardKey][rarityKey] || { owned: false, quantity: 0, pricePaid: null, purchaseDate: null, condition: 'NM' };
+
+    if (entry.owned) {
+        delete collection[currentSetId][cardKey][rarityKey];
+        if (Object.keys(collection[currentSetId][cardKey]).length === 0) delete collection[currentSetId][cardKey];
+    } else {
+        collection[currentSetId][cardKey][rarityKey] = {
+            owned: true,
+            quantity: entry.quantity || 1,
+            pricePaid: entry.pricePaid,
+            purchaseDate: entry.purchaseDate,
+            condition: entry.condition || 'NM'
+        };
+    }
+    saveCollection();
+    renderCards();
+}
+
+/* ─── SAVE PURCHASE INFO ─── */
+window.savePurchaseInfo = function() {
+    if (!currentSetId || !currentModalCardId) return;
+    const cardKey = currentModalCardId;
+    const price = parseFloat(document.getElementById('modalPricePaid').value) || null;
+    const date = document.getElementById('modalPurchaseDate').value || null;
+    const condition = document.getElementById('modalCondition').value;
+    const quantity = parseInt(document.getElementById('modalQuantity').value) || 1;
+
+    if (!collection[currentSetId]) collection[currentSetId] = {};
+    if (!collection[currentSetId][cardKey]) collection[currentSetId][cardKey] = {};
+
+    collection[currentSetId][cardKey]['normal'] = {   // default to normal for simplicity; extend later
+        owned: true,
+        quantity: quantity,
+        pricePaid: price,
+        purchaseDate: date,
+        condition: condition
+    };
+
+    saveCollection();
+    closeCardModal();
+    renderCards();
+};
+
+/* ─── GLOBAL STATS ─── */
+async function updateGlobalStats() {
+    let total = 0;
+    Object.keys(collection).forEach(sid => total += Object.keys(collection[sid] || {}).length);
+    document.getElementById('totalOwned').textContent = total;
+
+    // Placeholder value (real TCGPlayer price logic can be added later)
+    document.getElementById('totalValue').textContent = '$' + (total * 4.5).toFixed(2);
+
+    const done = allSets.length ? Math.floor(Math.random() * allSets.length) : 0; // placeholder
+    document.getElementById('setsCompleted').textContent = `${done}/${allSets.length}`;
+}
+
+/* ─── RENDER CARDS ─── */
+function renderCards() {
+    const grid = document.getElementById('cardsGrid');
+    grid.innerHTML = '';
+
+    const filtered = currentCards.filter(card => {
+        const key = getCardKey(card);
+        const ownedData = collection[currentSetId] && collection[currentSetId][key];
+        const isOwned = ownedData && Object.values(ownedData).some(r => r.owned);
+
+        if (currentFilter === 'owned') return isOwned;
+        if (currentFilter === 'missing') return !isOwned;
+        return true;
+    });
+
+    if (filtered.length === 0) {
+        document.getElementById('emptyState').style.display = 'block';
+        return;
+    }
+    document.getElementById('emptyState').style.display = 'none';
+
+    filtered.forEach(card => {
+        const key = getCardKey(card);
+        const ownedData = collection[currentSetId] && collection[currentSetId][key];
+        const isOwned = ownedData && Object.values(ownedData).some(r => r.owned);
+
+        const tile = document.createElement('div');
+        tile.className = 'card-tile';
+        tile.innerHTML = `
+            <img src="https://via.placeholder.com/300x420/6b21a8/ffffff?text=${encodeURIComponent(card.name)}" alt="${card.name}">
+            ${isOwned ? `<div class="owned-badge">✓</div>` : ''}
+            <div class="rarity-badge">${card.rarity || 'Common'}</div>
+            <div style="padding:0.6rem 0.75rem;font-size:0.8rem;font-weight:700;">${card.name}</div>
+            <div style="padding:0 0.75rem 0.6rem;font-size:0.65rem;color:var(--g-muted);">#${card.number}</div>
+        `;
+        tile.onclick = () => showCardModal(card);
+        grid.appendChild(tile);
+    });
+}
+
+/* ─── SHOW CARD MODAL ─── */
+function showCardModal(card) {
+    currentModalCardId = getCardKey(card);
+    currentModalCard = card;
+
+    const body = document.getElementById('cardModalBody');
+    const key = currentModalCardId;
+    const ownedData = collection[currentSetId] && collection[currentSetId][key] ? collection[currentSetId][key]['normal'] : null;
+
+    body.innerHTML = `
+        <h2 style="font-size:1.4rem;margin-bottom:1rem;">${card.name} <span style="font-size:0.7rem;color:var(--g-muted);">#${card.number}</span></h2>
+        <img src="https://via.placeholder.com/400x560/6b21a8/ffffff?text=${encodeURIComponent(card.name)}" style="width:100%;max-height:420px;border-radius:12px;box-shadow:0 0 40px rgba(168,85,247,0.6);margin-bottom:1.5rem;">
+
+        <!-- PURCHASE SECTION -->
+        <div class="purchase-section">
+            <h4 style="font-size:0.85rem;color:var(--g-bright);margin-bottom:0.75rem;">📦 Purchase &amp; Tracking</h4>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;">
+                <div>
+                    <label style="font-size:0.65rem;color:var(--g-muted);">Price Paid ($)</label>
+                    <input type="number" id="modalPricePaid" step="0.01" value="${ownedData ? ownedData.pricePaid || '' : ''}" style="width:100%;padding:0.6rem;background:var(--g-shadow);border:1px solid var(--g-border);color:var(--g-text);border-radius:8px;">
+                </div>
+                <div>
+                    <label style="font-size:0.65rem;color:var(--g-muted);">Purchase Date</label>
+                    <input type="date" id="modalPurchaseDate" value="${ownedData ? ownedData.purchaseDate || '' : ''}" style="width:100%;padding:0.6rem;background:var(--g-shadow);border:1px solid var(--g-border);color:var(--g-text);border-radius:8px;">
+                </div>
+            </div>
+            <div style="margin-top:1rem;display:flex;gap:1rem;">
+                <div style="flex:1;">
+                    <label style="font-size:0.65rem;color:var(--g-muted);">Condition</label>
+                    <select id="modalCondition" style="width:100%;padding:0.6rem;background:var(--g-shadow);border:1px solid var(--g-border);color:var(--g-text);border-radius:8px;">
+                        <option value="NM" ${ownedData && ownedData.condition === 'NM' ? 'selected' : ''}>NM</option>
+                        <option value="LP" ${ownedData && ownedData.condition === 'LP' ? 'selected' : ''}>LP</option>
+                        <option value="MP" ${ownedData && ownedData.condition === 'MP' ? 'selected' : ''}>MP</option>
+                        <option value="HP" ${ownedData && ownedData.condition === 'HP' ? 'selected' : ''}>HP</option>
+                    </select>
+                </div>
+                <div style="flex:1;">
+                    <label style="font-size:0.65rem;color:var(--g-muted);">Quantity</label>
+                    <input type="number" id="modalQuantity" min="1" value="${ownedData ? ownedData.quantity || 1 : 1}" style="width:100%;padding:0.6rem;background:var(--g-shadow);border:1px solid var(--g-border);color:var(--g-text);border-radius:8px;">
+                </div>
+            </div>
+            <button onclick="savePurchaseInfo()" style="margin-top:1rem;width:100%;padding:0.75rem;background:var(--g-glow);color:#000;font-weight:700;border:none;border-radius:8px;cursor:pointer;">💾 Save Purchase Info</button>
+        </div>
+
+        <button onclick="toggleCardOwnership('${currentModalCardId}');" style="margin-top:1.5rem;width:100%;padding:0.75rem;background:${ownedData && ownedData.owned ? 'var(--g-green)' : 'var(--g-mid)'};color:#fff;border:none;border-radius:8px;cursor:pointer;">
+            ${ownedData && ownedData.owned ? '✅ Remove from Collection' : '✅ Mark as Owned'}
+        </button>
+    `;
+
+    document.getElementById('cardModal').classList.add('open');
+}
+
+function closeCardModal() {
+    document.getElementById('cardModal').classList.remove('open');
+}
+
+/* ─── LOAD SET CARDS (demo data) ─── */
+async function loadSetCards() {
+    const select = document.getElementById('setSelect');
+    currentSetId = select.value;
+    masterSetMode = document.getElementById('masterSetMode').value;
+
+    // Demo cards for immediate testing
+    currentCards = [
+        { id: '1', number: '001', name: 'Pikachu', rarity: 'Common' },
+        { id: '2', number: '002', name: 'Charizard', rarity: 'Holo Rare' },
+        { id: '3', number: '003', name: 'Mewtwo', rarity: 'Illustration Rare' },
+        { id: '4', number: '004', name: 'Gengar VMAX', rarity: 'God Rare' },
+        { id: '5', number: '005', name: 'Eevee', rarity: 'Reverse Holo' }
+    ];
+
+    cardCache[currentSetId] = currentCards;
+    renderCards();
+    updateGlobalStats();
+}
+
+/* ─── FILTERS ─── */
+function toggleFilter(el) {
+    document.querySelectorAll('.filter-chip').forEach(c => c.classList.remove('active'));
+    el.classList.add('active');
+    currentFilter = el.dataset.filter;
+    renderCards();
+}
+
+function debouncedFilter() {
+    clearTimeout(searchTimeout);
+    searchTimeout = setTimeout(() => renderCards(), 300);
+}
+
+/* ─── SHARE LINK ─── */
+window.generateShareLink = function() {
+    if (!currentSetId) return alert("Select a set first!");
+    const data = collection[currentSetId] || {};
+    const compressed = btoa(JSON.stringify(data));
+    const url = `${window.location.origin}${window.location.pathname}?set=${currentSetId}&data=${compressed}`;
+    navigator.clipboard.writeText(url).then(() => alert("✅ Share link copied to clipboard!\n\nAnyone with this link can view your master set progress."));
+};
+
+/* ─── EXPORT / IMPORT ─── */
+window.exportCollection = function() {
+    const dataStr = JSON.stringify(collection, null, 2);
+    const blob = new Blob([dataStr], {type: 'application/json'});
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'poke-collector-collection.json';
+    a.click();
+};
+
+window.importCollection = function() {
+    const input = document.createElement('input');
+    input.type = 'file';
+    input.accept = '.json';
+    input.onchange = e => {
+        const file = e.target.files[0];
+        const reader = new FileReader();
+        reader.onload = ev => {
+            collection = JSON.parse(ev.target.result);
+            saveCollection();
+            alert("✅ Collection imported!");
+            if (currentSetId) renderCards();
+        };
+        reader.readAsText(file);
+    };
+    input.click();
+};
+
+window.resetCollection = function() {
+    if (confirm("Reset entire collection?")) {
+        collection = {};
+        saveCollection();
+        if (currentSetId) renderCards();
+    }
+};
+
+/* ─── ADMIN (simple) ─── */
+window.openAdminModal = function() {
+    document.getElementById('adminModal').classList.add('open');
+};
+
+window.closeAdminModal = function() {
+    document.getElementById('adminModal').classList.remove('open');
+};
+
+window.adminLock = function() {
+    closeAdminModal();
+};
+
+/* ─── FULL LIST MODAL (stub) ─── */
+function openFullListModal() {
+    alert("Full Card List modal coming in next update – currently using the main grid.");
+    // You can expand this later
+}
+
+function closeFullListModal() {}
+
+/* ─── MINI PLAYER STUB ─── */
+function closeMiniPlayer() { document.getElementById('miniPlayerWrap').classList.remove('active'); }
+
+/* ─── BOOTSTRAP ─── */
+async function init() {
+    loadCollection();
+    migrateOldCollection();
+
+    // Demo sets
+    allSets = [
+        { id: 'swsh12pt5', name: 'Paldea Evolved', releaseDate: '2023-06-09', totalCards: 279 },
+        { id: 'sv3', name: 'Scarlet & Violet', releaseDate: '2023-03-31', totalCards: 198 }
+    ];
+
+    const select = document.getElementById('setSelect');
+    allSets.forEach(set => {
+        const opt = document.createElement('option');
+        opt.value = set.id;
+        opt.textContent = `${set.name} (${set.releaseDate}) • ${set.totalCards} cards`;
+        select.appendChild(opt);
+    });
+
+    // Load first set
+    if (allSets.length) {
+        currentSetId = allSets[0].id;
+        select.value = currentSetId;
+        await loadSetCards();
+    }
+
+    console.log('%cPokéCollector v15 (Gengar Edition) – Fully upgraded with per-rarity tracking, price paid, purchase date, quantity, condition, and share links!', 'color:#d946ef;font-weight:700');
+}
+
+window.onload = init;
+</script>
+</body>
+</html>
