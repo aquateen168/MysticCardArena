@@ -4,638 +4,1975 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>PokéCollector • Modern Sets (2021+)</title>
-    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Rajdhani:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap');
-        
+        /* ─── ROOT PALETTE: GENGAR ─── */
         :root {
-            --poke-red: #ee1515;
-            --poke-blue: #3b4cca;
+            --g-deep:    #0d0015;
+            --g-dark:    #150025;
+            --g-purple:  #6b21a8;
+            --g-mid:     #7c3aed;
+            --g-bright:  #a855f7;
+            --g-glow:    #d946ef;
+            --g-shadow:  #1e0033;
+            --g-red:     #ee1515;
+            --g-blue:    #3b4cca;
+            --g-eye:     #e2d4f8;
+            --g-gold:    #f59e0b;
+            --g-green:   #10b981;
+            --g-card-bg: rgba(107,33,168,0.10);
+            --g-border:  rgba(168,85,247,0.30);
+            --g-text:    #f3e8ff;
+            --g-muted:   rgba(243,232,255,0.45);
+            --star-color: #d1c4e9;
         }
-        
+
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+        /* ─── GALAXY BACKGROUND ─── */
         body {
-            font-family: 'Press Start 2P', system-ui;
+            font-family: 'Rajdhani', sans-serif;
+            background: var(--g-deep);
+            color: var(--g-text);
+            min-height: 100vh;
+            overflow-x: hidden;
+            position: relative;
         }
-        
-        .card-hover {
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+
+        #galaxy-canvas {
+            position: fixed;
+            inset: 0;
+            z-index: 0;
+            pointer-events: none;
         }
-        
-        .card-hover:hover {
-            transform: scale(1.08) rotate(2deg);
-            box-shadow: 0 25px 50px -12px rgb(238 21 21);
+
+        .page-wrap {
+            position: relative;
+            z-index: 1;
         }
-        
+
+        /* pixel font utility */
+        .pixel { font-family: 'Press Start 2P', monospace; }
+
+        /* ─── SCROLLBARS ─── */
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: var(--g-shadow); }
+        ::-webkit-scrollbar-thumb { background: var(--g-mid); border-radius: 999px; }
+
+        /* ─── HEADER ─── */
+        .site-header {
+            position: sticky;
+            top: 0;
+            z-index: 200;
+            background: rgba(13,0,21,0.92);
+            backdrop-filter: blur(20px);
+            border-bottom: 2px solid var(--g-mid);
+            box-shadow: 0 0 40px rgba(168,85,247,0.25);
+            padding: 0.6rem 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+
+        .header-logo {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            flex: 0 0 auto;
+        }
+
+        .logo-icon {
+            width: 52px;
+            height: 52px;
+            background: radial-gradient(circle, var(--g-bright), var(--g-purple));
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.6rem;
+            box-shadow: 0 0 20px var(--g-glow);
+            animation: pulseGlow 3s ease-in-out infinite;
+        }
+
+        @keyframes pulseGlow {
+            0%,100% { box-shadow: 0 0 20px var(--g-glow); }
+            50%      { box-shadow: 0 0 40px var(--g-glow), 0 0 60px var(--g-bright); }
+        }
+
+        .logo-text { line-height: 1.2; }
+        .logo-text h1 { font-size: 1.1rem; letter-spacing: 0.12em; color: var(--g-text); }
+        .logo-text p  { font-size: 0.6rem; color: var(--g-bright); letter-spacing: 0.2em; margin-top: 2px; }
+
+        .header-stats {
+            display: flex;
+            gap: 1rem;
+            margin-left: auto;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .stat-chip {
+            text-align: center;
+            background: var(--g-card-bg);
+            border: 1px solid var(--g-border);
+            border-radius: 12px;
+            padding: 0.35rem 0.8rem;
+            min-width: 80px;
+        }
+
+        .stat-chip .val {
+            font-family: 'Press Start 2P', monospace;
+            font-size: 0.75rem;
+            display: block;
+        }
+
+        .stat-chip .lbl {
+            font-size: 0.6rem;
+            color: var(--g-muted);
+            margin-top: 2px;
+            display: block;
+            letter-spacing: 0.1em;
+        }
+
+        .header-actions {
+            display: flex;
+            gap: 0.5rem;
+            align-items: center;
+        }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.4rem;
+            padding: 0.45rem 0.9rem;
+            border-radius: 8px;
+            font-family: 'Press Start 2P', monospace;
+            font-size: 0.5rem;
+            cursor: pointer;
+            border: none;
+            transition: all 0.2s;
+            text-decoration: none;
+        }
+
+        .btn-purple { background: var(--g-mid); color: #fff; }
+        .btn-purple:hover { background: var(--g-bright); box-shadow: 0 0 16px var(--g-glow); }
+        .btn-red    { background: var(--g-red); color: #fff; }
+        .btn-red:hover { filter: brightness(1.2); }
+        .btn-ghost  { background: transparent; border: 1px solid var(--g-border); color: var(--g-text); }
+        .btn-ghost:hover { border-color: var(--g-bright); color: var(--g-bright); }
+        .btn-gold   { background: var(--g-gold); color: #000; }
+        .btn-gold:hover { filter: brightness(1.15); }
+
+        /* ─── MINI VIDEO PLAYER (admin toggle) ─── */
+        #miniPlayerWrap {
+            position: fixed;
+            bottom: 1.5rem;
+            right: 1.5rem;
+            z-index: 500;
+            display: none;
+            flex-direction: column;
+            align-items: flex-end;
+            gap: 0.4rem;
+        }
+
+        #miniPlayerWrap.active { display: flex; }
+
+        .mini-player-frame {
+            width: 320px;
+            height: 180px;
+            border-radius: 12px;
+            overflow: hidden;
+            border: 2px solid var(--g-glow);
+            box-shadow: 0 0 40px rgba(217,70,239,0.5);
+        }
+
+        .mini-player-frame iframe { width: 100%; height: 100%; border: none; }
+
+        .mini-player-close {
+            background: var(--g-glow);
+            color: #fff;
+            border: none;
+            border-radius: 50%;
+            width: 28px;
+            height: 28px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            font-size: 0.8rem;
+        }
+
+        /* ─── 3-COLUMN LAYOUT ─── */
+        .three-col {
+            display: grid;
+            grid-template-columns: 280px 1fr 280px;
+            gap: 1.25rem;
+            padding: 1.25rem 1.25rem;
+            max-width: 1800px;
+            margin: 0 auto;
+            align-items: start;
+        }
+
+        @media (max-width: 1200px) {
+            .three-col { grid-template-columns: 240px 1fr; }
+            .col-right { display: none; }
+        }
+
+        @media (max-width: 768px) {
+            .three-col { grid-template-columns: 1fr; }
+            .col-left, .col-right { display: none; }
+        }
+
+        /* ─── SIDEBAR PANELS ─── */
+        .sidebar-panel {
+            background: rgba(21,0,37,0.7);
+            border: 1px solid var(--g-border);
+            border-radius: 16px;
+            padding: 1rem;
+            backdrop-filter: blur(12px);
+        }
+
+        .sidebar-title {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-bottom: 0.75rem;
+            font-family: 'Press Start 2P', monospace;
+            font-size: 0.5rem;
+            letter-spacing: 0.1em;
+            color: var(--g-bright);
+            padding-bottom: 0.5rem;
+            border-bottom: 1px solid var(--g-border);
+        }
+
+        /* news cards */
+        .news-item {
+            display: block;
+            text-decoration: none;
+            background: var(--g-card-bg);
+            border: 1px solid var(--g-border);
+            border-radius: 10px;
+            padding: 0.65rem;
+            margin-bottom: 0.6rem;
+            transition: all 0.2s;
+            color: var(--g-text);
+        }
+
+        .news-item:hover {
+            border-color: var(--g-bright);
+            background: rgba(168,85,247,0.15);
+            transform: translateX(4px);
+        }
+
+        .news-item .date {
+            font-size: 0.6rem;
+            color: var(--g-green);
+            margin-bottom: 0.3rem;
+            font-family: 'Press Start 2P', monospace;
+        }
+
+        .news-item .title {
+            font-size: 0.72rem;
+            line-height: 1.4;
+            font-weight: 600;
+        }
+
+        /* video sidebar items */
+        .video-item {
+            cursor: pointer;
+            background: var(--g-card-bg);
+            border: 1px solid var(--g-border);
+            border-radius: 10px;
+            overflow: hidden;
+            margin-bottom: 0.6rem;
+            transition: all 0.2s;
+        }
+
+        .video-item:hover {
+            border-color: var(--g-glow);
+            box-shadow: 0 0 16px rgba(217,70,239,0.3);
+        }
+
+        .video-item .thumb-wrap {
+            position: relative;
+        }
+
+        .video-item img {
+            width: 100%;
+            aspect-ratio: 16/9;
+            object-fit: cover;
+            display: block;
+        }
+
+        .video-item .play-btn {
+            position: absolute;
+            inset: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: rgba(0,0,0,0.35);
+            font-size: 2.5rem;
+            color: var(--g-glow);
+            transition: background 0.2s;
+        }
+
+        .video-item:hover .play-btn { background: rgba(0,0,0,0.55); }
+
+        .video-item .vid-meta {
+            padding: 0.5rem 0.65rem;
+        }
+
+        .video-item .vid-date {
+            font-size: 0.55rem;
+            color: var(--g-muted);
+            margin-bottom: 0.2rem;
+        }
+
+        .video-item .vid-title {
+            font-size: 0.7rem;
+            line-height: 1.35;
+            font-weight: 600;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+
+        /* ─── MAIN CENTER COLUMN ─── */
+        .col-center { min-width: 0; }
+
+        /* set selector area */
+        .set-selector-bar {
+            background: rgba(21,0,37,0.8);
+            border: 1px solid var(--g-border);
+            border-radius: 14px;
+            padding: 1rem 1.2rem;
+            margin-bottom: 1rem;
+            backdrop-filter: blur(12px);
+        }
+
+        .set-selector-bar label {
+            display: block;
+            font-family: 'Press Start 2P', monospace;
+            font-size: 0.5rem;
+            color: var(--g-bright);
+            margin-bottom: 0.5rem;
+            letter-spacing: 0.12em;
+        }
+
+        .set-select-row {
+            display: flex;
+            gap: 0.75rem;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
         select {
-            background-color: #16213e !important;
-            color: white !important;
-        }
-        select option {
-            background-color: #16213e;
-            color: white;
-            padding: 12px 16px;
-        }
-        select:focus {
-            border-color: #3b4cca !important;
-            box-shadow: 0 0 0 4px rgba(59, 76, 202, 0.3);
-        }
-
-        .spinner {
-            animation: spin 1s linear infinite;
+            flex: 1;
+            min-width: 200px;
+            background: var(--g-shadow);
+            color: var(--g-text);
+            border: 2px solid var(--g-mid);
+            border-radius: 10px;
+            padding: 0.55rem 0.9rem;
+            font-family: 'Rajdhani', sans-serif;
+            font-size: 0.9rem;
+            font-weight: 600;
+            outline: none;
+            cursor: pointer;
+            transition: border-color 0.2s;
         }
 
+        select:focus { border-color: var(--g-glow); }
+        select option { background: var(--g-shadow); }
+
+        /* Full Set List Modal trigger */
+        .view-full-list-btn {
+            white-space: nowrap;
+        }
+
+        /* filters */
+        .filter-bar {
+            display: flex;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+            margin-bottom: 1rem;
+        }
+
+        .filter-chip {
+            cursor: pointer;
+            padding: 0.4rem 0.9rem;
+            border-radius: 999px;
+            font-size: 0.72rem;
+            font-weight: 700;
+            border: 1.5px solid var(--g-border);
+            background: transparent;
+            color: var(--g-muted);
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 0.3rem;
+            letter-spacing: 0.05em;
+        }
+
+        .filter-chip:hover,
+        .filter-chip.active {
+            background: var(--g-glow);
+            border-color: var(--g-glow);
+            color: #fff;
+            box-shadow: 0 0 14px rgba(217,70,239,0.4);
+        }
+
+        /* search */
+        .search-input {
+            background: var(--g-shadow);
+            border: 1.5px solid var(--g-border);
+            border-radius: 10px;
+            padding: 0.45rem 0.8rem;
+            color: var(--g-text);
+            font-family: 'Rajdhani', sans-serif;
+            font-size: 0.9rem;
+            width: 100%;
+            margin-bottom: 0.75rem;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+
+        .search-input:focus { border-color: var(--g-glow); }
+        .search-input::placeholder { color: var(--g-muted); }
+
+        /* ─── CARD GRID ─── */
         .card-grid {
-            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 1rem;
         }
-        
-        .price-bubble {
-            font-size: 1.25rem;
-            padding: 14px 18px;
+
+        .card-tile {
+            background: var(--g-card-bg);
+            border: 1.5px solid var(--g-border);
+            border-radius: 16px;
+            overflow: hidden;
+            cursor: pointer;
+            transition: all 0.25s cubic-bezier(0.4,0,0.2,1);
+            display: flex;
+            flex-direction: column;
+            position: relative;
         }
+
+        .card-tile:hover {
+            transform: scale(1.05) rotate(-1deg);
+            border-color: var(--g-glow);
+            box-shadow: 0 12px 40px rgba(217,70,239,0.4);
+        }
+
+        .card-tile img {
+            width: 100%;
+            aspect-ratio: 3/4;
+            object-fit: contain;
+            background: rgba(0,0,0,0.4);
+            padding: 0.5rem;
+            transition: transform 0.25s;
+        }
+
+        .card-tile:hover img { transform: scale(1.06); }
+
+        .owned-badge {
+            position: absolute;
+            top: 8px;
+            right: 8px;
+            background: var(--g-green);
+            color: #000;
+            font-size: 0.55rem;
+            font-weight: 700;
+            padding: 2px 8px;
+            border-radius: 999px;
+            font-family: 'Press Start 2P', monospace;
+        }
+
+        .rarity-badge {
+            position: absolute;
+            bottom: 8px;
+            left: 8px;
+            background: rgba(0,0,0,0.75);
+            color: var(--g-eye);
+            font-size: 0.55rem;
+            padding: 2px 7px;
+            border-radius: 6px;
+        }
+
+        .card-info {
+            padding: 0.6rem 0.75rem;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 0.3rem;
+        }
+
+        .card-name {
+            font-size: 0.8rem;
+            font-weight: 700;
+            line-height: 1.2;
+        }
+
+        .card-num { font-size: 0.65rem; color: var(--g-muted); }
+
+        .card-price-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: rgba(168,85,247,0.12);
+            border-radius: 8px;
+            padding: 0.3rem 0.6rem;
+            margin-top: auto;
+        }
+
+        .price-val { font-size: 0.75rem; font-weight: 700; color: var(--g-green); }
+
+        .toggle-own-btn {
+            width: 26px;
+            height: 26px;
+            border-radius: 50%;
+            border: 2px solid var(--g-border);
+            background: transparent;
+            color: var(--g-muted);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-size: 0.7rem;
+        }
+
+        .toggle-own-btn.owned {
+            background: var(--g-green);
+            border-color: var(--g-green);
+            color: #000;
+        }
+
+        /* loading spinner */
+        .spinner {
+            animation: spin 0.8s linear infinite;
+            display: inline-block;
+        }
+
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        /* ─── MODAL BASE ─── */
+        .modal-backdrop {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.85);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+            padding: 1rem;
+        }
+
+        .modal-backdrop.open { display: flex; }
+
+        .modal-box {
+            background: linear-gradient(135deg, #150025 0%, #1e0033 100%);
+            border: 2px solid var(--g-mid);
+            border-radius: 20px;
+            max-width: 700px;
+            width: 100%;
+            max-height: 90vh;
+            overflow-y: auto;
+            position: relative;
+            box-shadow: 0 0 80px rgba(168,85,247,0.4);
+        }
+
+        .modal-close-btn {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            background: var(--g-shadow);
+            border: 1px solid var(--g-border);
+            color: var(--g-text);
+            border-radius: 50%;
+            width: 34px;
+            height: 34px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            font-size: 1rem;
+            z-index: 10;
+            transition: all 0.2s;
+        }
+
+        .modal-close-btn:hover { border-color: var(--g-glow); color: var(--g-glow); }
+
+        .modal-body { padding: 1.5rem; }
+
+        /* ─── CARD DETAIL MODAL ─── */
+        .card-modal-inner {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .card-modal-inner img {
+            max-height: 340px;
+            border-radius: 12px;
+            box-shadow: 0 0 60px rgba(168,85,247,0.5);
+        }
+
+        .variant-tabs {
+            display: flex;
+            gap: 0.5rem;
+            width: 100%;
+        }
+
+        .variant-tab {
+            flex: 1;
+            padding: 0.4rem;
+            background: var(--g-card-bg);
+            border: 1px solid var(--g-border);
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 0.7rem;
+            font-weight: 700;
+            color: var(--g-text);
+            transition: all 0.2s;
+            text-align: center;
+        }
+
+        .variant-tab.active,
+        .variant-tab:hover {
+            background: var(--g-glow);
+            border-color: var(--g-glow);
+        }
+
+        .stat-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 0.5rem;
+            width: 100%;
+        }
+
+        .stat-block {
+            background: var(--g-card-bg);
+            border: 1px solid var(--g-border);
+            border-radius: 10px;
+            padding: 0.6rem 0.75rem;
+        }
+
+        .stat-block .lbl { font-size: 0.6rem; color: var(--g-muted); text-transform: uppercase; letter-spacing: 0.1em; }
+        .stat-block .val { font-size: 0.9rem; font-weight: 700; margin-top: 2px; }
+
+        .attack-block {
+            background: var(--g-card-bg);
+            border: 1px solid var(--g-border);
+            border-radius: 10px;
+            padding: 0.65rem 0.8rem;
+            width: 100%;
+        }
+
+        .attack-name { font-size: 0.8rem; font-weight: 700; }
+        .attack-dmg  { font-size: 0.8rem; color: var(--g-glow); font-weight: 700; }
+        .attack-text { font-size: 0.7rem; color: var(--g-muted); margin-top: 4px; }
+
+        /* ─── FULL CARD LIST MODAL ─── */
+        #fullListModal .modal-box { max-width: 900px; }
+
+        .full-list-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+            gap: 0.5rem;
+            margin-top: 0.75rem;
+        }
+
+        .list-card-mini {
+            background: var(--g-card-bg);
+            border: 1px solid var(--g-border);
+            border-radius: 10px;
+            padding: 0.5rem;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-align: center;
+        }
+
+        .list-card-mini:hover {
+            border-color: var(--g-glow);
+            background: rgba(168,85,247,0.2);
+        }
+
+        .list-card-mini img {
+            width: 100%;
+            aspect-ratio: 3/4;
+            object-fit: contain;
+            border-radius: 6px;
+        }
+
+        .list-card-mini .mc-name {
+            font-size: 0.6rem;
+            font-weight: 700;
+            margin-top: 0.3rem;
+            line-height: 1.2;
+        }
+
+        .list-card-mini .mc-num {
+            font-size: 0.55rem;
+            color: var(--g-muted);
+        }
+
+        .list-card-mini.owned-card {
+            border-color: var(--g-green);
+            box-shadow: 0 0 10px rgba(16,185,129,0.3);
+        }
+
+        /* ─── VIDEO PREVIEW MODAL ─── */
+        #videoModal .modal-box { max-width: 900px; }
+
+        #videoPlayerContainer {
+            aspect-ratio: 16/9;
+            width: 100%;
+            border-radius: 12px;
+            overflow: hidden;
+        }
+
+        #videoPlayerContainer iframe { width: 100%; height: 100%; border: none; }
+
+        /* ─── ADMIN PANEL ─── */
+        #adminModal .modal-box { max-width: 620px; }
+
+        .admin-section {
+            margin-bottom: 1.25rem;
+        }
+
+        .admin-section h4 {
+            font-family: 'Press Start 2P', monospace;
+            font-size: 0.5rem;
+            color: var(--g-bright);
+            letter-spacing: 0.1em;
+            margin-bottom: 0.6rem;
+            padding-bottom: 0.4rem;
+            border-bottom: 1px solid var(--g-border);
+        }
+
+        .admin-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: var(--g-card-bg);
+            border: 1px solid var(--g-border);
+            border-radius: 10px;
+            padding: 0.6rem 0.9rem;
+            margin-bottom: 0.4rem;
+        }
+
+        .admin-row .row-label { font-size: 0.8rem; font-weight: 700; }
+        .admin-row .row-sub   { font-size: 0.65rem; color: var(--g-muted); }
+
+        /* toggle switch */
+        .toggle-sw {
+            position: relative;
+            width: 44px;
+            height: 24px;
+            flex-shrink: 0;
+        }
+
+        .toggle-sw input { opacity: 0; width: 0; height: 0; }
+
+        .toggle-sw .slider {
+            position: absolute;
+            inset: 0;
+            background: rgba(255,255,255,0.1);
+            border-radius: 999px;
+            cursor: pointer;
+            transition: 0.3s;
+            border: 1.5px solid var(--g-border);
+        }
+
+        .toggle-sw .slider::before {
+            content: '';
+            position: absolute;
+            width: 18px;
+            height: 18px;
+            left: 2px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: var(--g-muted);
+            border-radius: 50%;
+            transition: 0.3s;
+        }
+
+        .toggle-sw input:checked + .slider { background: var(--g-glow); border-color: var(--g-glow); }
+        .toggle-sw input:checked + .slider::before { left: 22px; background: #fff; }
+
+        /* admin login overlay */
+        #adminLoginWrap { text-align: center; }
+
+        .admin-pass-input {
+            background: var(--g-shadow);
+            border: 2px solid var(--g-mid);
+            color: var(--g-text);
+            border-radius: 10px;
+            padding: 0.65rem 1rem;
+            font-size: 1rem;
+            width: 100%;
+            outline: none;
+            margin-bottom: 0.75rem;
+            font-family: 'Rajdhani', sans-serif;
+            letter-spacing: 0.2em;
+        }
+
+        .admin-pass-input:focus { border-color: var(--g-glow); }
+
+        .admin-error { color: var(--g-red); font-size: 0.75rem; margin-bottom: 0.5rem; display: none; }
+
+        /* ─── GENGAR EYE DECORATION ─── */
+        .gengar-eye {
+            position: fixed;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            pointer-events: none;
+            opacity: 0.06;
+            z-index: 0;
+            font-size: min(40vw, 400px);
+            line-height: 1;
+            user-select: none;
+        }
+
+        /* ─── EMPTY STATE ─── */
+        .empty-state {
+            text-align: center;
+            padding: 3rem 1rem;
+            display: none;
+        }
+
+        .empty-state i { font-size: 4rem; color: var(--g-border); margin-bottom: 1rem; }
+        .empty-state p { font-size: 0.8rem; color: var(--g-muted); }
+
+        /* ─── FOOTER ─── */
+        .site-footer {
+            text-align: center;
+            padding: 1.5rem;
+            font-size: 0.65rem;
+            color: var(--g-muted);
+            border-top: 1px solid var(--g-border);
+            margin-top: 2rem;
+        }
+
+        /* ─── Sticky sidebar ─── */
+        .col-left, .col-right {
+            position: sticky;
+            top: 76px;
+            max-height: calc(100vh - 90px);
+            overflow-y: auto;
+        }
+
+        /* ─── Set list tab in set selector ─── */
+        .tab-row { display: flex; gap: 0.4rem; margin-top: 0.5rem; }
+
+        .tab-item {
+            padding: 0.25rem 0.6rem;
+            border-radius: 6px;
+            font-size: 0.65rem;
+            font-weight: 700;
+            cursor: pointer;
+            border: 1px solid var(--g-border);
+            color: var(--g-muted);
+            transition: all 0.15s;
+        }
+
+        .tab-item:hover, .tab-item.active {
+            background: var(--g-mid);
+            border-color: var(--g-mid);
+            color: #fff;
+        }
+
+        /* progress bar */
+        .set-progress-wrap {
+            height: 6px;
+            background: rgba(255,255,255,0.08);
+            border-radius: 999px;
+            overflow: hidden;
+            margin-bottom: 0.75rem;
+        }
+
+        .set-progress-bar {
+            height: 100%;
+            background: linear-gradient(90deg, var(--g-mid), var(--g-glow));
+            border-radius: 999px;
+            transition: width 0.5s ease;
+        }
+
+        .set-progress-label {
+            font-size: 0.65rem;
+            color: var(--g-muted);
+            margin-bottom: 0.3rem;
+        }
+
+        /* Admin floating button */
+        .admin-fab {
+            position: fixed;
+            bottom: 1.5rem;
+            left: 1.5rem;
+            z-index: 400;
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--g-purple), var(--g-glow));
+            border: none;
+            color: #fff;
+            font-size: 1.1rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 0 20px rgba(217,70,239,0.5);
+            transition: transform 0.2s;
+        }
+
+        .admin-fab:hover { transform: scale(1.1); }
+
+        /* Channel link */
+        .yt-channel-link {
+            display: block;
+            text-align: center;
+            background: rgba(255,0,0,0.1);
+            border: 1px solid rgba(255,0,0,0.3);
+            color: #ff6b6b;
+            text-decoration: none;
+            border-radius: 8px;
+            padding: 0.4rem;
+            font-size: 0.65rem;
+            font-weight: 700;
+            margin-top: 0.5rem;
+            transition: all 0.2s;
+        }
+
+        .yt-channel-link:hover { background: rgba(255,0,0,0.25); }
     </style>
 </head>
-<body class="bg-gradient-to-br from-[#1a1a2e] to-[#16213e] text-white min-h-screen">
-    <!-- HEADER -->
-    <div class="bg-black border-b-4 border-[#ee1515] py-4 px-6 flex items-center justify-between sticky top-0 z-50">
-        <div class="flex items-center gap-3">
-            <i class="fas fa-dragon text-4xl text-[#ee1515]"></i>
-            <div>
-                <h1 class="text-3xl font-bold tracking-widest">POKÉCOLLECTOR</h1>
-                <p class="text-xs text-[#3b4cca] -mt-1">MODERN SETS • 2021+</p>
-            </div>
-        </div>
-        
-        <div class="flex items-center gap-6">
-            <div class="flex gap-6 text-center">
-                <div>
-                    <div id="totalOwned" class="text-2xl font-bold text-[#3b4cca]">0</div>
-                    <div class="text-[10px] uppercase tracking-widest">Cards Owned</div>
-                </div>
-                <div>
-                    <div id="totalValue" class="text-2xl font-bold text-emerald-400">$0.00</div>
-                    <div class="text-[10px] uppercase tracking-widest">Real Collection Value</div>
-                </div>
-                <div>
-                    <div id="setsCompleted" class="text-2xl font-bold text-emerald-400">0/0</div>
-                    <div class="text-[10px] uppercase tracking-widest">Sets Complete</div>
-                </div>
-            </div>
-            
-            <button onclick="exportCollection()" 
-                    class="bg-[#ee1515] hover:bg-red-600 px-5 py-2 rounded-lg text-sm flex items-center gap-2 transition-colors">
-                <i class="fas fa-download"></i>
-                <span>EXPORT</span>
-            </button>
-            
-            <button onclick="importCollection()" 
-                    class="bg-[#3b4cca] hover:bg-blue-700 px-5 py-2 rounded-lg text-sm flex items-center gap-2 transition-colors">
-                <i class="fas fa-upload"></i>
-                <span>IMPORT</span>
-            </button>
+<body>
+<canvas id="galaxy-canvas"></canvas>
 
-            <button onclick="resetCollection()" 
-                    class="bg-black hover:bg-red-900 border border-red-500 text-red-400 px-5 py-2 rounded-lg text-sm flex items-center gap-2 transition-colors">
-                <i class="fas fa-trash"></i>
-                <span>RESET COLLECTION</span>
-            </button>
-            
-            <div class="flex items-center gap-2 bg-white/10 px-4 py-2 rounded-2xl text-sm">
-                <div class="w-3 h-3 bg-emerald-400 rounded-full animate-pulse"></div>
-                LIVE PRICES
-            </div>
+<!-- GENGAR GHOST DECORATION -->
+<div class="gengar-eye" aria-hidden="true">👻</div>
+
+<div class="page-wrap">
+
+<!-- ═══════════════ HEADER ═══════════════ -->
+<header class="site-header">
+    <div class="header-logo">
+        <div class="logo-icon">👻</div>
+        <div class="logo-text pixel">
+            <h1>PokéCollector</h1>
+            <p>Modern Sets • 2021+</p>
         </div>
     </div>
 
-    <!-- NEWS + VIDEOS -->
-    <div class="max-w-7xl mx-auto px-6 pt-6 pb-2 border-b border-white/10">
-        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
-            <!-- PokéBeach (UPDATED RSS) -->
-            <div>
-                <div class="flex items-center gap-3 mb-3">
-                    <i class="fas fa-newspaper text-[#ee1515]"></i>
-                    <h3 class="uppercase tracking-widest text-sm font-bold">PokéBeach Latest News</h3>
-                    <div class="flex-1 h-px bg-white/10"></div>
-                    <a href="https://www.pokebeach.com/" target="_blank" class="text-[10px] text-white/60 hover:text-white flex items-center gap-1">
-                        VISIT POKEBEACH <i class="fas fa-external-link-alt"></i>
-                    </a>
-                </div>
-                <div id="newsFeed" class="flex gap-6 overflow-x-auto pb-4 snap-x snap-mandatory scrollbar-hide">
-                    <div class="flex-shrink-0 w-80 bg-white/5 rounded-3xl p-4 text-xs animate-pulse">Loading PokéBeach headlines…</div>
-                </div>
-            </div>
-            
-            <!-- The Card Arena Videos -->
-            <div>
-                <div class="flex items-center gap-3 mb-3">
-                    <i class="fab fa-youtube text-red-500"></i>
-                    <h3 class="uppercase tracking-widest text-sm font-bold">The Card Arena • Latest Videos</h3>
-                    <div class="flex-1 h-px bg-white/10"></div>
-                    <a href="https://www.youtube.com/channel/UCwrDye0cqBKJdmUFoVjfOcA" target="_blank" class="text-[10px] text-white/60 hover:text-white flex items-center gap-1">
-                        YOUTUBE CHANNEL <i class="fas fa-external-link-alt"></i>
-                    </a>
-                </div>
-                <div id="videosFeed" class="flex gap-6 overflow-x-auto pb-4 snap-x snap-mandatory scrollbar-hide">
-                    <div class="flex-shrink-0 w-80 bg-white/5 rounded-3xl p-4 text-xs animate-pulse">Loading latest videos…</div>
-                </div>
-            </div>
+    <div class="header-stats">
+        <div class="stat-chip">
+            <span class="val pixel" id="totalOwned" style="color:var(--g-bright)">0</span>
+            <span class="lbl">OWNED</span>
+        </div>
+        <div class="stat-chip">
+            <span class="val pixel" id="totalValue" style="color:var(--g-green)">$0.00</span>
+            <span class="lbl">VALUE</span>
+        </div>
+        <div class="stat-chip">
+            <span class="val pixel" id="setsCompleted" style="color:var(--g-gold)">0/0</span>
+            <span class="lbl">SETS DONE</span>
         </div>
     </div>
 
-    <div class="max-w-7xl mx-auto px-6 py-8">
+    <div class="header-actions">
+        <button onclick="exportCollection()" class="btn btn-ghost"><i class="fas fa-download"></i> Export</button>
+        <button onclick="importCollection()" class="btn btn-ghost"><i class="fas fa-upload"></i> Import</button>
+        <button onclick="resetCollection()" class="btn btn-red"><i class="fas fa-trash"></i> Reset</button>
+    </div>
+</header>
+
+<!-- ═══════════════ 3-COLUMN LAYOUT ═══════════════ -->
+<main class="three-col">
+
+    <!-- ── LEFT: POKÉBEACH NEWS ── -->
+    <aside class="col-left">
+        <div class="sidebar-panel">
+            <div class="sidebar-title">
+                <i class="fas fa-newspaper" style="color:var(--g-red)"></i>
+                PokéBeach Latest News
+            </div>
+            <div id="newsFeed">
+                <div style="text-align:center;padding:1rem;color:var(--g-muted);font-size:0.7rem;">
+                    <i class="fas fa-spinner spinner"></i> Loading…
+                </div>
+            </div>
+        </div>
+    </aside>
+
+    <!-- ── CENTER: MAIN CONTENT ── -->
+    <section class="col-center">
+
         <!-- SET SELECTOR -->
-        <div class="flex justify-between items-end mb-8">
-            <div>
-                <h2 class="text-xl uppercase tracking-widest mb-1">Choose a Modern Set</h2>
-                <select id="setSelect" 
-                        onchange="loadSetCards()"
-                        class="bg-[#16213e] border-2 border-[#ee1515] text-white rounded-xl px-5 py-3 text-lg w-96 focus:outline-none focus:border-[#3b4cca]">
-                </select>
-            </div>
-            
-            <div class="flex items-center gap-4">
-                <div onclick="toggleFilter(this)" data-filter="all" class="active-filter cursor-pointer px-6 py-2 bg-white/10 hover:bg-white/20 rounded-3xl text-sm flex items-center gap-2 transition-all">
-                    <i class="fas fa-list"></i> ALL CARDS
-                </div>
-                <div onclick="toggleFilter(this)" data-filter="owned" class="cursor-pointer px-6 py-2 bg-white/10 hover:bg-white/20 rounded-3xl text-sm flex items-center gap-2 transition-all">
-                    <i class="fas fa-check-circle"></i> OWNED
-                </div>
-                <div onclick="toggleFilter(this)" data-filter="missing" class="cursor-pointer px-6 py-2 bg-white/10 hover:bg-white/20 rounded-3xl text-sm flex items-center gap-2 transition-all">
-                    <i class="fas fa-times-circle"></i> MISSING
-                </div>
-                
-                <input id="cardSearch" type="text" placeholder="Search cards..." oninput="debouncedFilter()"
-                       class="bg-[#16213e] border border-white/30 focus:border-[#ee1515] rounded-3xl px-6 py-3 w-72 text-sm placeholder:text-white/50 focus:outline-none">
-            </div>
-            
-            <div id="setProgress" class="text-right hidden">
-                <div class="flex items-center gap-3 justify-end mb-1">
-                    <span id="progressText" class="text-sm font-bold text-emerald-400">0 / 0</span>
-                    <div class="h-2 w-48 bg-white/10 rounded-full overflow-hidden">
-                        <div id="progressBar" class="h-2 bg-emerald-400 rounded-full w-0 transition-all"></div>
-                    </div>
-                </div>
-                <p id="setNameDisplay" class="text-xs uppercase tracking-widest text-white/70"></p>
-            </div>
-        </div>
-
-        <div id="loadingIndicator" class="hidden text-center py-12">
-            <i class="fas fa-spinner spinner text-5xl text-[#ee1515]"></i>
-            <p class="text-sm mt-3 text-white/60">Fetching fresh data from Pokémon TCG API…</p>
-        </div>
-
-        <div id="cardsGrid" class="card-grid grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-4 2xl:grid-cols-5 gap-8">
-        </div>
-
-        <div id="emptyState" class="hidden text-center py-20">
-            <i class="fas fa-dice-d20 text-8xl text-white/20 mb-6"></i>
-            <p class="text-xl">No cards match your filter yet!</p>
-            <button onclick="resetFilter()" class="mt-6 px-8 py-3 bg-[#ee1515] rounded-3xl text-sm hover:scale-105 transition">SHOW ALL CARDS</button>
-        </div>
-    </div>
-
-    <!-- MODAL with VARIANT TOGGLE -->
-    <div onclick="if(event.target.id==='modalBackdrop')hideModal()" id="modalBackdrop" class="hidden fixed inset-0 bg-black/80 flex items-center justify-center z-[9999]">
-        <div onclick="event.stopImmediatePropagation()" class="modal bg-[#1a1a2e] border-4 border-[#ee1515] rounded-3xl max-w-md w-full mx-4 overflow-hidden">
-            <div id="modalContent" class="p-8"></div>
-        </div>
-    </div>
-
-    <!-- FOOTER with version -->
-    <div class="max-w-7xl mx-auto px-6 py-12 text-center text-xs text-white/40 border-t border-white/10 mt-12">
-        <p class="flex items-center justify-center gap-2">
-            <i class="fas fa-info-circle"></i>
-            Live TCGPlayer market prices • Separate rows for every variant • Modal now has toggle for Normal / Reverse Holo / Holo Rare
-        </p>
-        <div class="mt-6 text-[10px]">v11 • Made with ❤️ for Crucial Miyagi • Local data saved in browser • Ready for GitHub Pages</div>
-    </div>
-
-    <script>
-        function initTailwind() { tailwind.config = { content: [], theme: { extend: {} } }; }
-        
-        let allSets = [];
-        let currentSetId = null;
-        let currentCards = [];
-        let collection = {};
-        let currentFilter = 'all';
-        let cardCache = {};
-        let searchTimeout = null;
-        let currentModalCardId = null;   // ← NEW for variant toggle
-
-        function loadCollection() {
-            const saved = localStorage.getItem('pokeCollectorCollection');
-            if (saved) collection = JSON.parse(saved);
-            updateGlobalStats();
-        }
-        
-        function saveCollection() {
-            localStorage.setItem('pokeCollectorCollection', JSON.stringify(collection));
-            updateGlobalStats();
-        }
-        
-        async function calculateTotalValue() {
-            let total = 0;
-            for (const setId in collection) {
-                if (!cardCache[setId]) continue;
-                const ownedIds = Object.keys(collection[setId]);
-                for (const cardId of ownedIds) {
-                    const card = cardCache[setId].find(c => c.id === cardId);
-                    if (card) {
-                        const priceStr = getTcgPlayerMarketPrice(card);
-                        if (priceStr !== 'N/A') total += parseFloat(priceStr.replace('$', '')) || 0;
-                    }
-                }
-            }
-            return total;
-        }
-        
-        function updateGlobalStats() {
-            let totalOwned = 0;
-            Object.keys(collection).forEach(setId => totalOwned += Object.keys(collection[setId] || {}).length);
-            document.getElementById('totalOwned').textContent = totalOwned;
-            calculateTotalValue().then(v => document.getElementById('totalValue').innerHTML = `$${(v).toFixed(2)}`);
-            const completed = allSets.filter(s => Object.keys(collection[s.id] || {}).length === (s.totalCards || 0)).length;
-            document.getElementById('setsCompleted').innerHTML = `${completed}/${allSets.length}`;
-        }
-
-        function getPriceChartingUrl(card, setName) {
-            let query = `${card.name} ${card.number || ''} ${setName}`.trim();
-            const rarity = (card.rarity || '').toLowerCase();
-            if (rarity.includes('reverse') || rarity.includes('reverse holo')) query += ' Reverse Holo';
-            else if (rarity.includes('holo') && !rarity.includes('reverse')) query += ' Holo';
-            return `https://www.pricecharting.com/search-products?type=prices&q=${encodeURIComponent(query)}`;
-        }
-
-        function getTcgPlayerMarketPrice(card) {
-            if (!card.tcgplayer || !card.tcgplayer.prices) return 'N/A';
-            const pricesObj = card.tcgplayer.prices;
-            const rarity = (card.rarity || '').toLowerCase();
-            
-            let preferred = 'normal';
-            if (rarity.includes('reverse') || rarity.includes('reverse holo')) preferred = 'reverseHolofoil';
-            else if (rarity.includes('holo') || rarity.includes('rare')) preferred = 'holofoil';
-            
-            if (pricesObj[preferred] && pricesObj[preferred].market) return '$' + pricesObj[preferred].market.toFixed(2);
-            if (pricesObj.normal && pricesObj.normal.market) return '$' + pricesObj.normal.market.toFixed(2);
-            
-            for (const key in pricesObj) {
-                if (pricesObj[key] && pricesObj[key].market) return '$' + pricesObj[key].market.toFixed(2);
-            }
-            return 'N/A';
-        }
-
-        async function fetchModernSets() {
-            try {
-                const res = await fetch('https://api.pokemontcg.io/v2/sets?orderBy=-releaseDate');
-                const data = await res.json();
-                allSets = data.data.filter(set => parseInt(set.releaseDate.split('-')[0]) >= 2021);
-                allSets.sort((a, b) => new Date(b.releaseDate) - new Date(a.releaseDate));
-                
-                const select = document.getElementById('setSelect');
-                select.innerHTML = `<option value="">— Select a modern set —</option>`;
-                allSets.forEach(set => {
-                    const opt = document.createElement('option');
-                    opt.value = set.id;
-                    opt.textContent = `${set.name} (${set.releaseDate}) • ${set.totalCards || '?'} cards`;
-                    select.appendChild(opt);
-                });
-                
-                const lastSet = localStorage.getItem('lastSelectedSet');
-                if (lastSet && allSets.find(s => s.id === lastSet)) select.value = lastSet;
-                return allSets;
-            } catch (e) {
-                console.error(e);
-                alert("Could not load sets. Check your connection.");
-                return [];
-            }
-        }
-        
-        async function loadSetCards() {
-            const setId = document.getElementById('setSelect').value;
-            if (!setId) return;
-            
-            currentSetId = setId;
-            const set = allSets.find(s => s.id === setId);
-            localStorage.setItem('lastSelectedSet', setId);
-            
-            document.getElementById('setProgress').classList.remove('hidden');
-            document.getElementById('setNameDisplay').textContent = set.name;
-            document.getElementById('loadingIndicator').classList.remove('hidden');
-            document.getElementById('cardsGrid').innerHTML = '';
-            
-            if (cardCache[setId]) {
-                currentCards = cardCache[setId];
-                document.getElementById('loadingIndicator').classList.add('hidden');
-                renderCards();
-                updateGlobalStats();
-                return;
-            }
-            
-            try {
-                const res = await fetch(`https://api.pokemontcg.io/v2/cards?q=set.id:${setId}&orderBy=number`);
-                const data = await res.json();
-                currentCards = data.data;
-                cardCache[setId] = currentCards;
-                set.totalCards = currentCards.length;
-                renderCards();
-                updateGlobalStats();
-            } catch (e) {
-                console.error(e);
-                document.getElementById('cardsGrid').innerHTML = `<div class="col-span-full text-center py-12 text-white/50">Failed to load cards. Try again.</div>`;
-            } finally {
-                document.getElementById('loadingIndicator').classList.add('hidden');
-            }
-        }
-        
-        function renderCards() {
-            const grid = document.getElementById('cardsGrid');
-            grid.innerHTML = '';
-            
-            let filteredCards = currentCards;
-            
-            if (currentFilter === 'owned') filteredCards = filteredCards.filter(card => collection[currentSetId] && collection[currentSetId][card.id]);
-            else if (currentFilter === 'missing') filteredCards = filteredCards.filter(card => !(collection[currentSetId] && collection[currentSetId][card.id]));
-            
-            const searchTerm = document.getElementById('cardSearch').value.toLowerCase().trim();
-            if (searchTerm) {
-                filteredCards = filteredCards.filter(card => 
-                    card.name.toLowerCase().includes(searchTerm) || (card.number && card.number.toString().includes(searchTerm))
-                );
-            }
-            
-            if (filteredCards.length === 0) {
-                document.getElementById('emptyState').classList.remove('hidden');
-                return;
-            }
-            document.getElementById('emptyState').classList.add('hidden');
-            
-            const setName = allSets.find(s => s.id === currentSetId).name;
-            
-            filteredCards.forEach(card => {
-                const isOwned = collection[currentSetId] && collection[currentSetId][card.id];
-                const marketPrice = getTcgPlayerMarketPrice(card);
-                const priceUrl = getPriceChartingUrl(card, setName);
-                
-                const cardHTML = `
-                <div onclick="showCardModal('${card.id}')" class="card-hover bg-white/5 border border-white/10 rounded-3xl overflow-hidden cursor-pointer group h-full flex flex-col">
-                    <div class="relative flex-1">
-                        <img src="${card.images.small}" alt="${card.name}" class="w-full aspect-square object-contain bg-black/30 p-4 group-hover:scale-110 transition-transform">
-                        ${isOwned ? `<div class="absolute top-3 right-3 bg-emerald-400 text-black text-[10px] font-bold px-2.5 py-1 rounded-2xl flex items-center gap-1"><i class="fas fa-check"></i> OWNED</div>` : ''}
-                        ${card.rarity ? `<div class="absolute bottom-3 left-3 bg-black/70 text-[10px] px-2 py-0.5 rounded-lg">${card.rarity}</div>` : ''}
-                    </div>
-                    <div class="px-4 pb-4 flex flex-col flex-1">
-                        <div class="flex justify-between items-start mb-3">
-                            <div>
-                                <p class="font-bold text-sm leading-tight">${card.name} <span class="text-emerald-400">(${card.rarity || 'Normal'})</span></p>
-                                <p class="text-xs text-white/60">#${card.number} • ${card.supertype}</p>
-                            </div>
-                            <div onclick="event.stopImmediatePropagation(); toggleOwned('${card.id}');" class="w-8 h-8 flex items-center justify-center border-2 ${isOwned ? 'border-emerald-400 bg-emerald-400 text-black' : 'border-white/40 hover:border-white/70'} rounded-2xl transition-colors flex-shrink-0">
-                                ${isOwned ? '<i class="fas fa-check"></i>' : '<i class="fas fa-plus text-xs"></i>'}
-                            </div>
-                        </div>
-                        
-                        <div class="mt-auto price-bubble flex items-center justify-between bg-white/10 rounded-3xl px-4 py-3">
-                            <div>
-                                <span class="text-emerald-400 font-bold">${marketPrice}</span>
-                                <span class="text-[10px] block -mt-1 text-white/60">TCGPlayer Market</span>
-                            </div>
-                            <a href="${priceUrl}" target="_blank" onclick="event.stopImmediatePropagation();" class="text-[10px] flex items-center gap-1 hover:text-[#ee1515] transition-colors">
-                                <i class="fas fa-chart-line"></i> CHART
-                            </a>
-                        </div>
-                    </div>
-                </div>`;
-                grid.innerHTML += cardHTML;
-            });
-        }
-        
-        function toggleOwned(cardId) {
-            if (!currentSetId) return;
-            if (!collection[currentSetId]) collection[currentSetId] = {};
-            if (collection[currentSetId][cardId]) delete collection[currentSetId][cardId];
-            else collection[currentSetId][cardId] = true;
-            saveCollection();
-            renderCards();
-            updateGlobalStats();
-        }
-        
-        function updateSetProgress() {
-            if (!currentSetId || !currentCards.length) return;
-            const ownedCount = Object.keys(collection[currentSetId] || {}).length;
-            const total = currentCards.length;
-            const percent = total > 0 ? Math.round((ownedCount / total) * 100) : 0;
-            document.getElementById('progressText').innerHTML = `${ownedCount} <span class="text-white/40">/ ${total}</span>`;
-            document.getElementById('progressBar').style.width = `${percent}%`;
-            updateGlobalStats();
-        }
-        
-        // NEW: Modal with variant toggle
-        function showCardModal(cardId) {
-            currentModalCardId = cardId;
-            renderModalContent();
-        }
-        
-        function renderModalContent() {
-            const card = currentCards.find(c => c.id === currentModalCardId);
-            if (!card) return;
-            
-            const setName = allSets.find(s => s.id === currentSetId).name;
-            
-            // Find all variants of this card (same number)
-            const variants = currentCards
-                .filter(c => c.number === card.number)
-                .sort((a, b) => {
-                    const ra = (a.rarity || '').toLowerCase();
-                    const rb = (b.rarity || '').toLowerCase();
-                    if (ra.includes('reverse')) return 1;
-                    if (rb.includes('reverse')) return -1;
-                    return 0;
-                });
-            
-            const currentIndex = variants.findIndex(v => v.id === currentModalCardId);
-            
-            let variantButtonsHTML = '';
-            if (variants.length > 1) {
-                variantButtonsHTML = `
-                <div class="flex gap-2 mb-6 border-b border-white/20 pb-4">
-                    ${variants.map((v, i) => {
-                        const isActive = v.id === currentModalCardId;
-                        const label = (v.rarity || 'Normal').replace('Rare', '').trim();
-                        return `<button onclick="switchVariant('${v.id}')" class="flex-1 py-2 px-4 rounded-2xl text-sm font-bold transition-all ${isActive ? 'bg-[#ee1515] text-white' : 'bg-white/10 hover:bg-white/20'}">${label}</button>`;
-                    }).join('')}
-                </div>`;
-            }
-            
-            const marketPrice = getTcgPlayerMarketPrice(card);
-            const priceUrl = getPriceChartingUrl(card, setName);
-            
-            const modalHTML = `
-            <div class="flex flex-col items-center">
-                ${variantButtonsHTML}
-                
-                <img src="${card.images.large}" alt="${card.name}" class="max-h-96 mb-6 shadow-2xl">
-                <h3 class="text-2xl font-bold mb-1">${card.name}</h3>
-                <p class="text-sm text-emerald-400 mb-1">${card.rarity || 'Normal Variant'}</p>
-                <p class="text-sm text-white/70 mb-4">#${card.number} • ${setName}</p>
-                
-                <div class="grid grid-cols-2 gap-4 w-full text-sm">
-                    <div class="bg-white/10 rounded-2xl p-4">
-                        <div class="text-xs uppercase mb-1">Rarity</div>
-                        <div class="font-bold">${card.rarity || 'N/A'}</div>
-                    </div>
-                    <div class="bg-white/10 rounded-2xl p-4">
-                        <div class="text-xs uppercase mb-1">Market Price</div>
-                        <div class="font-bold text-emerald-400 text-3xl">${marketPrice}</div>
-                    </div>
-                </div>
-                
-                <a href="${priceUrl}" target="_blank" class="mt-8 w-full py-4 bg-[#ee1515] hover:bg-red-600 text-center rounded-3xl text-sm font-bold flex items-center justify-center gap-2">
-                    <i class="fas fa-external-link-alt"></i> FULL PRICECHARTING PAGE
-                </a>
-                
-                <button onclick="hideModal()" class="mt-4 text-white/60 hover:text-white text-xs flex items-center gap-1">
-                    <i class="fas fa-arrow-left"></i> BACK TO CHECKLIST
+        <div class="set-selector-bar">
+            <label class="pixel">Choose a Modern Set</label>
+            <div class="set-select-row">
+                <select id="setSelect" onchange="loadSetCards()"></select>
+                <button onclick="openFullListModal()" class="btn btn-purple view-full-list-btn">
+                    <i class="fas fa-table-cells"></i> Full Card List
                 </button>
-            </div>`;
-            
-            document.getElementById('modalContent').innerHTML = modalHTML;
-            document.getElementById('modalBackdrop').classList.remove('hidden');
-            document.getElementById('modalBackdrop').classList.add('flex');
-        }
-        
-        // NEW: Switch variant inside modal
-        function switchVariant(newCardId) {
-            currentModalCardId = newCardId;
-            renderModalContent();
-        }
-        
-        function hideModal() {
-            const modal = document.getElementById('modalBackdrop');
-            modal.classList.add('hidden');
-            modal.classList.remove('flex');
-            currentModalCardId = null;
-        }
-        
-        function toggleFilter(el) {
-            document.querySelectorAll('#setProgress ~ div > div').forEach(e => e.classList.remove('active-filter', 'bg-[#ee1515]', 'text-black'));
-            el.classList.add('active-filter', 'bg-[#ee1515]', 'text-black');
-            currentFilter = el.dataset.filter;
-            renderCards();
-        }
-        
-        function resetFilter() {
-            currentFilter = 'all';
-            document.getElementById('cardSearch').value = '';
-            document.querySelectorAll('#setProgress ~ div > div').forEach((e, i) => {
-                if (i === 0) e.classList.add('active-filter', 'bg-[#ee1515]', 'text-black');
-                else e.classList.remove('active-filter', 'bg-[#ee1515]', 'text-black');
+            </div>
+            <div class="tab-row" style="margin-top:0.75rem;">
+                <div class="set-progress-label" id="setProgressLabel" style="display:inline-block;margin-right:0.5rem;"></div>
+            </div>
+            <div class="set-progress-wrap">
+                <div class="set-progress-bar" id="setProgressBar" style="width:0%"></div>
+            </div>
+
+            <!-- SEARCH -->
+            <input type="text" id="cardSearch" class="search-input" placeholder="🔍  Search cards by name or number…" oninput="debouncedFilter()">
+
+            <!-- FILTERS -->
+            <div class="filter-bar" id="filterButtons">
+                <div class="filter-chip active" data-filter="all" onclick="toggleFilter(this)"><i class="fas fa-list"></i> All Cards</div>
+                <div class="filter-chip" data-filter="owned" onclick="toggleFilter(this)"><i class="fas fa-check-circle"></i> Owned (Set)</div>
+                <div class="filter-chip" data-filter="missing" onclick="toggleFilter(this)"><i class="fas fa-times-circle"></i> Missing (Set)</div>
+                <div class="filter-chip" data-filter="global-owned" onclick="toggleFilter(this)"><i class="fas fa-globe"></i> My Collection</div>
+            </div>
+        </div>
+
+        <!-- LOADING -->
+        <div id="loadingIndicator" style="display:none;text-align:center;padding:2rem;">
+            <i class="fas fa-spinner spinner" style="font-size:2.5rem;color:var(--g-glow);"></i>
+            <p style="margin-top:0.75rem;font-size:0.75rem;color:var(--g-muted);">Loading cards…</p>
+        </div>
+
+        <!-- CARDS GRID -->
+        <div id="cardsGrid" class="card-grid"></div>
+
+        <!-- EMPTY STATE -->
+        <div class="empty-state" id="emptyState">
+            <i class="fas fa-ghost"></i>
+            <p id="emptyMessage">No cards match your filter!</p>
+        </div>
+
+    </section>
+
+    <!-- ── RIGHT: CARD ARENA VIDEOS ── -->
+    <aside class="col-right">
+        <div class="sidebar-panel">
+            <div class="sidebar-title">
+                <i class="fab fa-youtube" style="color:#ff0000"></i>
+                Card Arena • Latest Videos
+            </div>
+            <div id="videosFeed">
+                <div style="text-align:center;padding:1rem;color:var(--g-muted);font-size:0.7rem;">
+                    <i class="fas fa-spinner spinner"></i> Loading…
+                </div>
+            </div>
+            <a href="https://www.youtube.com/@TheCardArena" target="_blank" class="yt-channel-link">
+                <i class="fab fa-youtube"></i> Visit The Card Arena Channel
+            </a>
+        </div>
+    </aside>
+
+</main>
+
+<!-- ═══════════════ FOOTER ═══════════════ -->
+<footer class="site-footer pixel">
+    v14 • Gengar Edition • Made with 💜 for Crucial Miyagi<br>
+    <span style="font-size:0.55rem;margin-top:4px;display:block;">Pokémon TCG API • PokéBeach • TCGPlayer Market Prices</span>
+</footer>
+
+</div><!-- /page-wrap -->
+
+<!-- ─── ADMIN FAB ─── -->
+<button class="admin-fab" onclick="openAdminModal()" title="Admin Panel">
+    <i class="fas fa-user-shield"></i>
+</button>
+
+<!-- ─── MINI VIDEO PLAYER ─── -->
+<div id="miniPlayerWrap">
+    <button class="mini-player-close" onclick="closeMiniPlayer()"><i class="fas fa-times"></i></button>
+    <div class="mini-player-frame">
+        <iframe id="miniPlayerIframe" src="" allow="accelerometer; autoplay; clipboard-write; encrypted-media" allowfullscreen></iframe>
+    </div>
+</div>
+
+<!-- ═══════════════ MODALS ═══════════════ -->
+
+<!-- CARD DETAIL MODAL -->
+<div class="modal-backdrop" id="cardModal" onclick="if(event.target===this)closeCardModal()">
+    <div class="modal-box">
+        <button class="modal-close-btn" onclick="closeCardModal()"><i class="fas fa-times"></i></button>
+        <div class="modal-body" id="cardModalBody"></div>
+    </div>
+</div>
+
+<!-- VIDEO MODAL -->
+<div class="modal-backdrop" id="videoModal" onclick="if(event.target===this)closeVideoModal()">
+    <div class="modal-box" style="max-width:860px;">
+        <button class="modal-close-btn" onclick="closeVideoModal()"><i class="fas fa-times"></i></button>
+        <div class="modal-body">
+            <div id="videoPlayerContainer"></div>
+        </div>
+    </div>
+</div>
+
+<!-- FULL CARD LIST MODAL -->
+<div class="modal-backdrop" id="fullListModal" onclick="if(event.target===this)closeFullListModal()">
+    <div class="modal-box" style="max-width:960px;">
+        <button class="modal-close-btn" onclick="closeFullListModal()"><i class="fas fa-times"></i></button>
+        <div class="modal-body">
+            <div style="font-family:'Press Start 2P',monospace;font-size:0.6rem;color:var(--g-bright);margin-bottom:0.75rem;" id="fullListTitle">Full Card List</div>
+
+            <!-- Set picker inside modal -->
+            <div style="display:flex;gap:0.5rem;align-items:center;margin-bottom:1rem;flex-wrap:wrap;">
+                <select id="fullListSetSelect" onchange="loadFullList()" style="flex:1;min-width:200px;"></select>
+                <span id="fullListCount" style="font-size:0.7rem;color:var(--g-muted);white-space:nowrap;"></span>
+            </div>
+
+            <!-- progress inside -->
+            <div class="set-progress-wrap">
+                <div class="set-progress-bar" id="fullListProgressBar" style="width:0%"></div>
+            </div>
+
+            <!-- Search inside full list -->
+            <input type="text" id="fullListSearch" class="search-input" placeholder="🔍  Search…" oninput="filterFullList()" style="margin-top:0.5rem;">
+
+            <div id="fullListGrid" class="full-list-grid"></div>
+        </div>
+    </div>
+</div>
+
+<!-- ADMIN MODAL -->
+<div class="modal-backdrop" id="adminModal" onclick="if(event.target===this)closeAdminModal()">
+    <div class="modal-box">
+        <button class="modal-close-btn" onclick="closeAdminModal()"><i class="fas fa-times"></i></button>
+        <div class="modal-body">
+
+            <!-- LOGIN SCREEN -->
+            <div id="adminLoginWrap">
+                <div style="font-family:'Press Start 2P',monospace;font-size:0.7rem;color:var(--g-bright);margin-bottom:1rem;">
+                    <i class="fas fa-user-shield"></i> Admin Panel
+                </div>
+                <div style="font-size:1.5rem;margin-bottom:1rem;color:var(--g-muted);">🔒</div>
+                <p style="font-size:0.8rem;color:var(--g-muted);margin-bottom:1rem;">Enter admin password to continue.</p>
+                <div class="admin-error" id="adminError">❌ Wrong password. Try again.</div>
+                <input type="password" id="adminPassInput" class="admin-pass-input" placeholder="••••••••" onkeydown="if(event.key==='Enter')checkAdminPass()">
+                <button onclick="checkAdminPass()" class="btn btn-purple" style="width:100%;justify-content:center;font-size:0.6rem;padding:0.65rem;">
+                    <i class="fas fa-unlock"></i> Unlock
+                </button>
+            </div>
+
+            <!-- ADMIN CONTENT -->
+            <div id="adminContent" style="display:none;">
+                <div style="font-family:'Press Start 2P',monospace;font-size:0.65rem;color:var(--g-bright);margin-bottom:1.25rem;display:flex;align-items:center;gap:0.5rem;">
+                    <i class="fas fa-user-shield"></i> Admin Panel
+                    <span style="margin-left:auto;font-size:0.5rem;color:var(--g-green);">● UNLOCKED</span>
+                </div>
+
+                <!-- TOGGLES -->
+                <div class="admin-section">
+                    <h4>🎬 Home Page Features</h4>
+
+                    <div class="admin-row">
+                        <div>
+                            <div class="row-label">Mini YouTube Player</div>
+                            <div class="row-sub">Show floating video from The Card Arena on every page load</div>
+                        </div>
+                        <label class="toggle-sw">
+                            <input type="checkbox" id="toggleMiniPlayer" onchange="adminToggleMiniPlayer(this.checked)">
+                            <span class="slider"></span>
+                        </label>
+                    </div>
+
+                    <div class="admin-row">
+                        <div>
+                            <div class="row-label">Galaxy Background Animation</div>
+                            <div class="row-sub">Animated starfield canvas</div>
+                        </div>
+                        <label class="toggle-sw">
+                            <input type="checkbox" id="toggleGalaxy" checked onchange="adminToggleGalaxy(this.checked)">
+                            <span class="slider"></span>
+                        </label>
+                    </div>
+                </div>
+
+                <!-- COLLECTION MANAGEMENT -->
+                <div class="admin-section">
+                    <h4>📦 Collection Management</h4>
+                    <div class="admin-row">
+                        <div>
+                            <div class="row-label">Export Collection</div>
+                            <div class="row-sub">Download JSON backup of all owned cards</div>
+                        </div>
+                        <button onclick="exportCollection()" class="btn btn-ghost" style="font-size:0.55rem;">
+                            <i class="fas fa-download"></i> Export
+                        </button>
+                    </div>
+                    <div class="admin-row">
+                        <div>
+                            <div class="row-label">Import Collection</div>
+                            <div class="row-sub">Restore from JSON backup</div>
+                        </div>
+                        <button onclick="importCollection()" class="btn btn-ghost" style="font-size:0.55rem;">
+                            <i class="fas fa-upload"></i> Import
+                        </button>
+                    </div>
+                    <div class="admin-row">
+                        <div>
+                            <div class="row-label">Reset All Data</div>
+                            <div class="row-sub">⚠️ Permanently clears all owned cards</div>
+                        </div>
+                        <button onclick="adminResetConfirm()" class="btn btn-red" style="font-size:0.55rem;">
+                            <i class="fas fa-trash"></i> Reset
+                        </button>
+                    </div>
+                </div>
+
+                <!-- STATS -->
+                <div class="admin-section">
+                    <h4>📊 Collection Stats</h4>
+                    <div id="adminStats" style="font-size:0.8rem;color:var(--g-muted);line-height:1.8;"></div>
+                </div>
+
+                <!-- ADMIN PASSWORD CHANGE -->
+                <div class="admin-section">
+                    <h4>🔑 Change Admin Password</h4>
+                    <div style="display:flex;gap:0.5rem;align-items:center;flex-wrap:wrap;">
+                        <input type="password" id="newPassInput" class="admin-pass-input" placeholder="New password…" style="flex:1;min-width:150px;margin-bottom:0;">
+                        <button onclick="changeAdminPassword()" class="btn btn-gold" style="font-size:0.5rem;white-space:nowrap;">
+                            <i class="fas fa-key"></i> Save
+                        </button>
+                    </div>
+                    <div id="passSaved" style="color:var(--g-green);font-size:0.7rem;margin-top:0.4rem;display:none;">✅ Password updated!</div>
+                </div>
+
+                <button onclick="adminLock()" class="btn btn-ghost" style="width:100%;justify-content:center;font-size:0.55rem;margin-top:0.5rem;">
+                    <i class="fas fa-lock"></i> Lock & Close
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ═══════════════ SCRIPT ═══════════════ -->
+<script>
+/* ─── STATE ─── */
+let allSets = [];
+let currentSetId = null;
+let currentCards = [];
+let collection = {};
+let currentFilter = 'all';
+let cardCache = {};
+let searchTimeout = null;
+let currentModalCardId = null;
+let cardArenaVideoIds = [];
+let fullListCards = [];
+const ADMIN_PASS_KEY = 'pokeAdminPass';
+const MINI_PLAYER_KEY = 'pokeMiniPlayerEnabled';
+const GALAXY_KEY = 'pokeGalaxyEnabled';
+const DEFAULT_PASS = 'tree';
+
+/* ─── GALAXY CANVAS ─── */
+(function() {
+    const canvas = document.getElementById('galaxy-canvas');
+    const ctx = canvas.getContext('2d');
+    let stars = [];
+    let nebulae = [];
+    let W, H;
+    let galaxyEnabled = localStorage.getItem(GALAXY_KEY) !== 'false';
+
+    function resize() {
+        W = canvas.width = window.innerWidth;
+        H = canvas.height = window.innerHeight;
+        initStars();
+        initNebulae();
+    }
+
+    function randBetween(a, b) { return a + Math.random() * (b - a); }
+
+    function initStars() {
+        stars = [];
+        const count = Math.floor((W * H) / 2200);
+        for (let i = 0; i < count; i++) {
+            stars.push({
+                x: Math.random() * W,
+                y: Math.random() * H,
+                r: randBetween(0.3, 2.2),
+                opacity: randBetween(0.2, 1),
+                speed: randBetween(0.0002, 0.001),
+                phase: Math.random() * Math.PI * 2,
+                hue: Math.random() < 0.3 ? 270 : Math.random() < 0.5 ? 280 : 240
             });
-            renderCards();
         }
-        
-        function debouncedFilter() {
-            clearTimeout(searchTimeout);
-            searchTimeout = setTimeout(() => renderCards(), 300);
+    }
+
+    function initNebulae() {
+        nebulae = [];
+        for (let i = 0; i < 5; i++) {
+            nebulae.push({
+                x: Math.random() * W, y: Math.random() * H,
+                r: randBetween(80, 200),
+                opacity: randBetween(0.03, 0.09),
+                hue: [270, 300, 260, 290, 240][i]
+            });
         }
-        
-        function exportCollection() {
-            const dataStr = JSON.stringify(collection, null, 2);
-            const dataUri = 'data:application/json;charset=utf-8,' + encodeURIComponent(dataStr);
-            const linkElement = document.createElement('a');
-            linkElement.setAttribute('href', dataUri);
-            linkElement.setAttribute('download', `poke-collector-backup-${new Date().toISOString().slice(0,10)}.json`);
-            linkElement.click();
+    }
+
+    let frame = 0;
+    function draw() {
+        requestAnimationFrame(draw);
+        if (!galaxyEnabled) { ctx.clearRect(0,0,W,H); return; }
+        ctx.clearRect(0, 0, W, H);
+
+        // deep space gradient
+        const bg = ctx.createLinearGradient(0, 0, W, H);
+        bg.addColorStop(0, '#0d0015');
+        bg.addColorStop(0.5, '#100020');
+        bg.addColorStop(1, '#060010');
+        ctx.fillStyle = bg;
+        ctx.fillRect(0, 0, W, H);
+
+        // nebulae
+        nebulae.forEach(n => {
+            const g = ctx.createRadialGradient(n.x, n.y, 0, n.x, n.y, n.r);
+            g.addColorStop(0, `hsla(${n.hue},80%,55%,${n.opacity})`);
+            g.addColorStop(1, 'transparent');
+            ctx.fillStyle = g;
+            ctx.beginPath();
+            ctx.arc(n.x, n.y, n.r, 0, Math.PI * 2);
+            ctx.fill();
+        });
+
+        // stars
+        frame++;
+        stars.forEach(s => {
+            const twinkle = 0.5 + 0.5 * Math.sin(frame * s.speed * 60 + s.phase);
+            const alpha = s.opacity * (0.4 + 0.6 * twinkle);
+            ctx.beginPath();
+            ctx.arc(s.x, s.y, s.r, 0, Math.PI * 2);
+            ctx.fillStyle = `hsla(${s.hue},60%,90%,${alpha})`;
+            ctx.fill();
+        });
+    }
+
+    window.addEventListener('resize', resize);
+    resize();
+    draw();
+
+    window.__setGalaxy = (on) => { galaxyEnabled = on; };
+})();
+
+/* ─── COLLECTION PERSISTENCE ─── */
+function loadCollection() {
+    const saved = localStorage.getItem('pokeCollectorCollection');
+    if (saved) collection = JSON.parse(saved);
+    updateGlobalStats();
+}
+
+function saveCollection() {
+    localStorage.setItem('pokeCollectorCollection', JSON.stringify(collection));
+    updateGlobalStats();
+}
+
+/* ─── GLOBAL STATS ─── */
+async function updateGlobalStats() {
+    let total = 0;
+    Object.keys(collection).forEach(sid => total += Object.keys(collection[sid] || {}).length);
+    document.getElementById('totalOwned').textContent = total;
+
+    const val = await calculateTotalValue();
+    document.getElementById('totalValue').textContent = '$' + val.toFixed(2);
+
+    const done = allSets.filter(s => {
+        const own = Object.keys(collection[s.id] || {}).length;
+        return own > 0 && own >= (s.totalCards || 0);
+    }).length;
+    document.getElementById('setsCompleted').textContent = `${done}/${allSets.length}`;
+
+    updateSetProgress();
+}
+
+function updateSetProgress() {
+    if (!currentSetId) return;
+    const set = allSets.find(s => s.id === currentSetId);
+    if (!set) return;
+    const owned = Object.keys(collection[currentSetId] || {}).length;
+    const total = set.totalCards || 0;
+    const pct = total > 0 ? Math.round((owned / total) * 100) : 0;
+    document.getElementById('setProgressBar').style.width = pct + '%';
+    document.getElementById('setProgressLabel').textContent =
+        `${owned} / ${total} owned (${pct}%)`;
+}
+
+async function calculateTotalValue() {
+    let total = 0;
+    for (const sid in collection) {
+        if (!cardCache[sid]) continue;
+        for (const cid of Object.keys(collection[sid])) {
+            const card = cardCache[sid].find(c => c.id === cid);
+            if (card) {
+                const p = getTcgPlayerMarketPrice(card);
+                if (p !== 'N/A') total += parseFloat(p.replace('$', '')) || 0;
+            }
         }
-        
-        function importCollection() {
-            const input = document.createElement('input');
-            input.type = 'file';
-            input.accept = '.json';
-            input.onchange = e => {
-                const file = e.target.files[0];
-                const reader = new FileReader();
-                reader.onload = event => {
-                    try {
-                        collection = JSON.parse(event.target.result);
-                        saveCollection();
-                        if (currentSetId) { renderCards(); updateSetProgress(); }
-                        alert('✅ Collection imported successfully!');
-                    } catch(err) { alert('Invalid backup file'); }
-                };
-                reader.readAsText(file);
-            };
-            input.click();
+    }
+    return total;
+}
+
+/* ─── PRICE HELPERS ─── */
+function getTcgPlayerMarketPrice(card) {
+    if (!card.tcgplayer?.prices) return 'N/A';
+    const prices = card.tcgplayer.prices;
+    const rarity = (card.rarity || '').toLowerCase();
+    let pref = 'normal';
+    if (rarity.includes('reverse holo') || rarity.includes('reverse')) pref = 'reverseHolofoil';
+    else if (rarity.includes('holo') || rarity.includes('rare')) pref = 'holofoil';
+    if (prices[pref]?.market) return '$' + prices[pref].market.toFixed(2);
+    if (prices.normal?.market) return '$' + prices.normal.market.toFixed(2);
+    for (const k in prices) if (prices[k]?.market) return '$' + prices[k].market.toFixed(2);
+    return 'N/A';
+}
+
+function getPriceChartingUrl(card, setName) {
+    const q = `${card.name} ${card.number || ''} ${setName}`.trim();
+    return `https://www.pricecharting.com/search-products?type=prices&q=${encodeURIComponent(q)}`;
+}
+
+/* ─── SETS ─── */
+async function fetchModernSets() {
+    try {
+        const res = await fetch('https://api.pokemontcg.io/v2/sets?orderBy=-releaseDate');
+        const data = await res.json();
+        allSets = data.data
+            .filter(s => parseInt(s.releaseDate.split('-')[0]) >= 2021)
+            .sort((a, b) => new Date(b.releaseDate) - new Date(a.releaseDate));
+
+        const populateSelect = (selectId) => {
+            const sel = document.getElementById(selectId);
+            sel.innerHTML = '<option value="">— Select a modern set —</option>';
+            allSets.forEach(set => {
+                const o = document.createElement('option');
+                o.value = set.id;
+                o.textContent = `${set.name} (${set.releaseDate.slice(0,7)}) • ${set.totalCards || '?'} cards`;
+                sel.appendChild(o);
+            });
+        };
+
+        populateSelect('setSelect');
+        populateSelect('fullListSetSelect');
+
+        const last = localStorage.getItem('lastSelectedSet');
+        if (last && allSets.find(s => s.id === last)) {
+            document.getElementById('setSelect').value = last;
+            document.getElementById('fullListSetSelect').value = last;
         }
-        
-        function resetCollection() {
-            if (confirm('⚠️ This will delete ALL owned cards across every set.\n\nAre you sure you want to reset your entire collection?')) {
-                collection = {};
-                localStorage.removeItem('pokeCollectorCollection');
-                saveCollection();
-                if (currentSetId) {
-                    renderCards();
-                    updateSetProgress();
+
+        return allSets;
+    } catch (e) {
+        console.error('fetchModernSets:', e);
+        return [];
+    }
+}
+
+/* ─── LOAD SET CARDS ─── */
+async function loadSetCards() {
+    const setId = document.getElementById('setSelect').value;
+    if (!setId) return;
+    currentSetId = setId;
+    localStorage.setItem('lastSelectedSet', setId);
+    document.getElementById('loadingIndicator').style.display = 'block';
+    document.getElementById('cardsGrid').innerHTML = '';
+
+    if (cardCache[setId]) {
+        currentCards = cardCache[setId];
+        document.getElementById('loadingIndicator').style.display = 'none';
+        renderCards();
+        updateGlobalStats();
+        return;
+    }
+
+    try {
+        const res = await fetch(`https://api.pokemontcg.io/v2/cards?q=set.id:${setId}&orderBy=number`);
+        const data = await res.json();
+        currentCards = data.data;
+        cardCache[setId] = currentCards;
+        const set = allSets.find(s => s.id === setId);
+        if (set) set.totalCards = currentCards.length;
+        renderCards();
+        updateGlobalStats();
+    } catch (e) {
+        document.getElementById('cardsGrid').innerHTML = '<p style="color:var(--g-muted);text-align:center;padding:2rem;">Failed to load cards.</p>';
+    } finally {
+        document.getElementById('loadingIndicator').style.display = 'none';
+    }
+}
+
+/* ─── RENDER CARDS ─── */
+function renderCards() {
+    const grid = document.getElementById('cardsGrid');
+    grid.innerHTML = '';
+    let cards = [];
+
+    if (currentFilter === 'global-owned') {
+        Object.keys(collection).forEach(sid => {
+            const setCards = cardCache[sid] || [];
+            Object.keys(collection[sid] || {}).forEach(cid => {
+                const card = setCards.find(c => c.id === cid);
+                if (card) {
+                    card._setName = allSets.find(s => s.id === sid)?.name || 'Unknown';
+                    cards.push(card);
                 }
-                alert('✅ Collection has been completely reset!');
-            }
+            });
+        });
+    } else {
+        cards = [...currentCards];
+        if (currentFilter === 'owned') cards = cards.filter(c => collection[currentSetId]?.[c.id]);
+        if (currentFilter === 'missing') cards = cards.filter(c => !collection[currentSetId]?.[c.id]);
+        const q = (document.getElementById('cardSearch')?.value || '').toLowerCase().trim();
+        if (q) cards = cards.filter(c => c.name.toLowerCase().includes(q) || (c.number || '').toString().includes(q));
+    }
+
+    const empty = document.getElementById('emptyState');
+    if (cards.length === 0) {
+        empty.style.display = 'block';
+        document.getElementById('emptyMessage').textContent =
+            currentFilter === 'global-owned' ? "You haven't marked any cards owned yet!" : "No cards match this filter!";
+        return;
+    }
+    empty.style.display = 'none';
+
+    cards.forEach(card => {
+        const isOwned = (currentFilter === 'global-owned') || !!(collection[currentSetId]?.[card.id]);
+        const price = getTcgPlayerMarketPrice(card);
+        const setName = card._setName || allSets.find(s => s.id === currentSetId)?.name || '';
+        const priceUrl = getPriceChartingUrl(card, setName);
+
+        const div = document.createElement('div');
+        div.className = 'card-tile';
+        div.onclick = () => showCardModal(card.id);
+        div.innerHTML = `
+            ${isOwned ? '<div class="owned-badge">✓ OWNED</div>' : ''}
+            ${card.rarity ? `<div class="rarity-badge">${card.rarity}</div>` : ''}
+            <img src="${card.images.small}" alt="${card.name}" loading="lazy">
+            <div class="card-info">
+                <div class="card-name">${card.name}</div>
+                <div class="card-num">${card._setName ? card._setName : '#' + card.number}</div>
+                <div class="card-price-row">
+                    <span class="price-val">${price}</span>
+                    <div style="display:flex;align-items:center;gap:0.4rem;">
+                        <a href="${priceUrl}" target="_blank" onclick="event.stopPropagation()" style="font-size:0.6rem;color:var(--g-muted);text-decoration:none;" title="PriceCharting">
+                            <i class="fas fa-chart-line"></i>
+                        </a>
+                        <button class="toggle-own-btn ${isOwned ? 'owned' : ''}" onclick="event.stopPropagation();toggleOwned('${card.id}')" title="${isOwned ? 'Remove' : 'Mark owned'}">
+                            <i class="fas fa-${isOwned ? 'check' : 'plus'}"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>`;
+        grid.appendChild(div);
+    });
+}
+
+/* ─── TOGGLE OWNED ─── */
+function toggleOwned(cardId) {
+    if (!currentSetId && currentFilter !== 'global-owned') return;
+    if (!collection[currentSetId]) collection[currentSetId] = {};
+    if (collection[currentSetId][cardId]) delete collection[currentSetId][cardId];
+    else collection[currentSetId][cardId] = true;
+    saveCollection();
+    renderCards();
+}
+
+/* ─── FILTER ─── */
+function toggleFilter(el) {
+    document.querySelectorAll('#filterButtons .filter-chip').forEach(e => e.classList.remove('active'));
+    el.classList.add('active');
+    currentFilter = el.dataset.filter;
+    renderCards();
+}
+
+let _searchTO = null;
+function debouncedFilter() {
+    clearTimeout(_searchTO);
+    _searchTO = setTimeout(renderCards, 280);
+}
+
+/* ─── CARD MODAL ─── */
+function showCardModal(cardId) {
+    currentModalCardId = cardId;
+    renderCardModal();
+    document.getElementById('cardModal').classList.add('open');
+}
+
+function renderCardModal() {
+    const card = currentCards.find(c => c.id === currentModalCardId)
+               || Object.values(cardCache).flat().find(c => c.id === currentModalCardId);
+    if (!card) return;
+
+    const setName = card._setName || allSets.find(s => s.id === currentSetId)?.name || '';
+    const isOwned = !!(collection[currentSetId]?.[card.id]);
+    const price = getTcgPlayerMarketPrice(card);
+    const priceUrl = getPriceChartingUrl(card, setName);
+
+    const variants = currentCards.filter(c => c.number === card.number);
+    const variantHTML = variants.length > 1
+        ? `<div class="variant-tabs">${variants.map(v => `
+            <div class="variant-tab ${v.id === currentModalCardId ? 'active' : ''}" onclick="switchVariant('${v.id}')">
+                ${(v.rarity || 'Normal').replace('Rare', '').trim()}
+            </div>`).join('')}</div>`
+        : '';
+
+    const attacksHTML = (card.attacks || []).map(a => `
+        <div class="attack-block">
+            <div style="display:flex;justify-content:space-between;">
+                <span class="attack-name">${a.name}</span>
+                <span class="attack-dmg">${a.damage || ''}</span>
+            </div>
+            ${a.text ? `<div class="attack-text">${a.text}</div>` : ''}
+        </div>`).join('');
+
+    document.getElementById('cardModalBody').innerHTML = `
+        <div class="card-modal-inner">
+            ${variantHTML}
+            <img src="${card.images.large}" alt="${card.name}">
+            <div style="font-family:'Press Start 2P',monospace;font-size:0.8rem;">${card.name}</div>
+            <div style="font-size:0.75rem;color:var(--g-bright);">${card.rarity || 'Normal'}</div>
+            <div style="font-size:0.7rem;color:var(--g-muted);">#${card.number} • ${setName}</div>
+            <div class="stat-grid">
+                <div class="stat-block"><div class="lbl">HP</div><div class="val">${card.hp || '—'}</div></div>
+                <div class="stat-block"><div class="lbl">Types</div><div class="val">${card.types?.join(', ') || '—'}</div></div>
+                <div class="stat-block"><div class="lbl">Market Price</div><div class="val" style="color:var(--g-green)">${price}</div></div>
+                <div class="stat-block"><div class="lbl">Owned</div><div class="val">${isOwned ? '✅ Yes' : '❌ No'}</div></div>
+            </div>
+            ${attacksHTML ? `<div style="width:100%;"><div style="font-size:0.65rem;color:var(--g-muted);margin-bottom:0.4rem;text-transform:uppercase;letter-spacing:0.1em;">Attacks</div>${attacksHTML}</div>` : ''}
+            <div style="display:flex;gap:0.5rem;width:100%;margin-top:0.5rem;">
+                <button onclick="toggleOwned('${card.id}');renderCardModal()" class="btn ${isOwned ? 'btn-ghost' : 'btn-purple'}" style="flex:1;justify-content:center;font-size:0.5rem;">
+                    <i class="fas fa-${isOwned ? 'minus' : 'plus'}"></i> ${isOwned ? 'Remove from Collection' : 'Add to Collection'}
+                </button>
+                <a href="${priceUrl}" target="_blank" class="btn btn-gold" style="flex:1;justify-content:center;font-size:0.5rem;text-decoration:none;">
+                    <i class="fas fa-chart-line"></i> PriceCharting
+                </a>
+            </div>
+        </div>`;
+}
+
+function switchVariant(id) { currentModalCardId = id; renderCardModal(); }
+function closeCardModal() {
+    document.getElementById('cardModal').classList.remove('open');
+    currentModalCardId = null;
+}
+
+/* ─── VIDEO MODAL ─── */
+function playVideo(videoId) {
+    document.getElementById('videoPlayerContainer').innerHTML =
+        `<iframe src="https://www.youtube.com/embed/${videoId}?autoplay=1&rel=0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>`;
+    document.getElementById('videoModal').classList.add('open');
+}
+
+function closeVideoModal() {
+    document.getElementById('videoModal').classList.remove('open');
+    document.getElementById('videoPlayerContainer').innerHTML = '';
+}
+
+/* ─── FULL LIST MODAL ─── */
+function openFullListModal() {
+    const sel = document.getElementById('fullListSetSelect');
+    if (!sel.value && document.getElementById('setSelect').value) {
+        sel.value = document.getElementById('setSelect').value;
+    }
+    loadFullList();
+    document.getElementById('fullListModal').classList.add('open');
+}
+
+function closeFullListModal() { document.getElementById('fullListModal').classList.remove('open'); }
+
+async function loadFullList() {
+    const setId = document.getElementById('fullListSetSelect').value;
+    if (!setId) return;
+    const set = allSets.find(s => s.id === setId);
+    document.getElementById('fullListTitle').textContent = set ? set.name + ' — Full Card List' : 'Full Card List';
+    document.getElementById('fullListGrid').innerHTML = '<div style="text-align:center;padding:1rem;color:var(--g-muted);font-size:0.75rem;"><i class="fas fa-spinner spinner"></i> Loading…</div>';
+
+    if (!cardCache[setId]) {
+        try {
+            const res = await fetch(`https://api.pokemontcg.io/v2/cards?q=set.id:${setId}&orderBy=number`);
+            const data = await res.json();
+            cardCache[setId] = data.data;
+            if (set) set.totalCards = data.data.length;
+        } catch (e) {
+            document.getElementById('fullListGrid').innerHTML = '<p style="color:var(--g-muted);padding:1rem;">Failed to load.</p>';
+            return;
         }
-        
-        // UPDATED PokéBeach feed with the RSS you provided
-        async function loadPokebeachNews() {
-            const container = document.getElementById('newsFeed');
+    }
+
+    fullListCards = cardCache[setId];
+    const owned = Object.keys(collection[setId] || {}).length;
+    document.getElementById('fullListCount').textContent = `${owned} / ${fullListCards.length} owned`;
+    const pct = fullListCards.length > 0 ? (owned / fullListCards.length) * 100 : 0;
+    document.getElementById('fullListProgressBar').style.width = pct + '%';
+    renderFullList(fullListCards);
+}
+
+function renderFullList(cards) {
+    const grid = document.getElementById('fullListGrid');
+    const setId = document.getElementById('fullListSetSelect').value;
+    grid.innerHTML = '';
+    cards.forEach(card => {
+        const isOwned = !!(collection[setId]?.[card.id]);
+        const div = document.createElement('div');
+        div.className = 'list-card-mini' + (isOwned ? ' owned-card' : '');
+        div.onclick = () => {
+            closeFullListModal();
+            if (document.getElementById('setSelect').value !== setId) {
+                document.getElementById('setSelect').value = setId;
+                loadSetCards().then(() => showCardModal(card.id));
+            } else {
+                showCardModal(card.id);
+            }
+        };
+        div.innerHTML = `
+            <img src="${card.images.small}" alt="${card.name}" loading="lazy">
+            <div class="mc-name">${card.name}</div>
+            <div class="mc-num">#${card.number} ${isOwned ? '✓' : ''}</div>`;
+        grid.appendChild(div);
+    });
+}
+
+function filterFullList() {
+    const q = document.getElementById('fullListSearch').value.toLowerCase().trim();
+    const filtered = q ? fullListCards.filter(c => c.name.toLowerCase().includes(q) || c.number.toString().includes(q)) : fullListCards;
+    renderFullList(filtered);
+}
+
+/* ─── NEWS ─── */
+async function loadPokebeachNews() {
+    const container = document.getElementById('newsFeed');
+    try {
+        const proxy = `https://api.rss2json.com/v1/api.json?rss_url=${encodeURIComponent('https://www.pokebeach.com/forums/forum/-/index.rss')}`;
+        const res = await fetch(proxy);
+        const data = await res.json();
+        container.innerHTML = '';
+        data.items.slice(0, 10).forEach(item => {
+            const d = new Date(item.pubDate);
+            const a = document.createElement('a');
+            a.className = 'news-item';
+            a.href = item.link;
+            a.target = '_blank';
+            a.innerHTML = `
+                <div class="date">${d.toLocaleDateString('en-US', {month:'short', day:'numeric', year:'numeric'})}</div>
+                <div class="title">${item.title}</div>`;
+            container.appendChild(a);
+        });
+    } catch (e) {
+        container.innerHTML = '<div style="color:var(--g-muted);font-size:0.7rem;padding:0.5rem;">Could not load PokéBeach news.</div>';
+    }
+}
+
+/* ─── VIDEOS ─── */
+async function loadCardArenaVideos() {
+    const container = document.getElementById('videosFeed');
+    try {
+        const rssUrl = 'https://www.youtube.com/feeds/videos.xml?channel_id=UCwrDye0cqBKJdmUFoVjfOcA';
+        const proxy = `https://api.rss2json.com/v1/api.json?rss_url=${encodeURIComponent(rssUrl)}`;
+        const res = await fetch(proxy);
+        const data = await res.json();
+        container.innerHTML = '';
+        cardArenaVideoIds = [];
+
+        data.items.slice(0, 10).forEach(item => {
+            let vid = '';
+            if (item.link.includes('watch?v=')) vid = item.link.split('watch?v=')[1].split('&')[0];
+            else if (item.link.includes('/embed/')) vid = item.link.split('/embed/')[1];
+            if (vid) cardArenaVideoIds.push(vid);
+
+            const pub = new Date(item.pubDate);
+            const div = document.createElement('div');
+            div.className = 'video-item';
+            div.onclick = () => playVideo(vid);
+            div.innerHTML = `
+                <div class="thumb-wrap">
+                    <img src="https://img.youtube.com/vi/${vid}/hqdefault.jpg" alt="${item.title}" loading="lazy">
+                    <div class="play-btn"><i class="fas fa-play-circle"></i></div>
+                </div>
+                <div class="vid-meta">
+                    <div class="vid-date"><i class="fab fa-youtube" style="color:#ff0000"></i> ${pub.toLocaleDateString('en-US', {month:'short', day:'numeric', year:'numeric'})}</div>
+                    <div class="vid-title">${item.title}</div>
+                </div>`;
+            container.appendChild(div);
+        });
+
+        // If mini player enabled, load random video
+        if (localStorage.getItem(MINI_PLAYER_KEY) === 'true' && cardArenaVideoIds.length > 0) {
+            loadMiniPlayer();
+        }
+
+    } catch (e) {
+        container.innerHTML = '<div style="color:var(--g-muted);font-size:0.7rem;padding:0.5rem;">Could not load The Card Arena videos.</div>';
+    }
+}
+
+/* ─── MINI PLAYER ─── */
+function loadMiniPlayer() {
+    if (cardArenaVideoIds.length === 0) return;
+    const vid = cardArenaVideoIds[Math.floor(Math.random() * cardArenaVideoIds.length)];
+    document.getElementById('miniPlayerIframe').src =
+        `https://www.youtube.com/embed/${vid}?autoplay=0&rel=0&mute=1`;
+    document.getElementById('miniPlayerWrap').classList.add('active');
+}
+
+function closeMiniPlayer() {
+    document.getElementById('miniPlayerWrap').classList.remove('active');
+    document.getElementById('miniPlayerIframe').src = '';
+}
+
+/* ─── COLLECTION IMPORT/EXPORT ─── */
+function exportCollection() {
+    const str = JSON.stringify(collection, null, 2);
+    const uri = 'data:application/json;charset=utf-8,' + encodeURIComponent(str);
+    const a = document.createElement('a');
+    a.href = uri;
+    a.download = `poke-collector-${new Date().toISOString().slice(0,10)}.json`;
+    a.click();
+}
+
+function importCollection() {
+    const inp = document.createElement('input');
+    inp.type = 'file';
+    inp.accept = '.json';
+    inp.onchange = e => {
+        const reader = new FileReader();
+        reader.onload = ev => {
             try {
-                const rssUrl = 'https://www.pokebeach.com/forums/forum/-/index.rss';
-                const proxy = `https://api.rss2json.com/v1/api.json?rss_url=${encodeURIComponent(rssUrl)}`;
-                const res = await fetch(proxy);
-                const data = await res.json();
-                container.innerHTML = '';
-                data.items.slice(0, 6).forEach(item => {
-                    const div = document.createElement('div');
-                    div.className = 'flex-shrink-0 w-80 bg-white/5 hover:bg-white/10 rounded-3xl p-4 snap-start transition-colors cursor-pointer';
-                    div.innerHTML = `<a href="${item.link}" target="_blank" class="block"><div class="text-emerald-400 text-[10px] mb-1">${new Date(item.pubDate).toLocaleDateString('en-US', {month:'short', day:'numeric'})}</div><p class="line-clamp-3 text-sm leading-tight font-medium">${item.title}</p></a>`;
-                    container.appendChild(div);
-                });
-            } catch (e) {
-                container.innerHTML = `<div class="text-white/40 text-sm p-4">Could not load PokéBeach news. Try refreshing.</div>`;
-            }
-        }
-        
-        async function loadCardArenaVideos() {
-            const container = document.getElementById('videosFeed');
-            try {
-                const rssUrl = 'https://www.youtube.com/feeds/videos.xml?channel_id=UCwrDye0cqBKJdmUFoVjfOcA';
-                const proxy = `https://api.rss2json.com/v1/api.json?rss_url=${encodeURIComponent(rssUrl)}`;
-                const res = await fetch(proxy);
-                const data = await res.json();
-                container.innerHTML = '';
-                data.items.slice(0, 6).forEach(item => {
-                    const div = document.createElement('div');
-                    div.className = 'flex-shrink-0 w-80 bg-white/5 hover:bg-white/10 rounded-3xl p-4 snap-start transition-colors cursor-pointer';
-                    div.innerHTML = `<a href="${item.link}" target="_blank" class="block"><div class="text-red-400 text-[10px] mb-1 flex items-center gap-1"><i class="fab fa-youtube"></i> ${new Date(item.pubDate).toLocaleDateString('en-US', {month:'short', day:'numeric'})}</div><p class="line-clamp-3 text-sm leading-tight font-medium">${item.title}</p></a>`;
-                    container.appendChild(div);
-                });
-            } catch (e) {
-                container.innerHTML = `<div class="text-white/40 text-sm p-4">Could not load The Card Arena videos. Try refreshing.</div>`;
-            }
-        }
-        
-        async function initializeApp() {
-            initTailwind();
-            loadCollection();
-            await fetchModernSets();
-            await loadPokebeachNews();
-            await loadCardArenaVideos();
-            
-            if (allSets.length > 0) {
-                const select = document.getElementById('setSelect');
-                if (!select.value) select.value = allSets[0].id;
-                await loadSetCards();
-            }
-            
-            console.log('%c🚀 PokéCollector v11 – PokéBeach RSS fixed + Modal variant toggle!', 'color:#ee1515; font-family:monospace');
-        }
-        
-        window.onload = initializeApp;
-    </script>
+                collection = JSON.parse(ev.target.result);
+                saveCollection();
+                renderCards();
+                alert('✅ Collection imported!');
+            } catch { alert('⚠️ Invalid backup file.'); }
+        };
+        reader.readAsText(e.target.files[0]);
+    };
+    inp.click();
+}
+
+function resetCollection() {
+    if (confirm('⚠️ Reset ALL collection data?\n\nThis cannot be undone.')) {
+        collection = {};
+        localStorage.removeItem('pokeCollectorCollection');
+        saveCollection();
+        renderCards();
+    }
+}
+
+/* ─── ADMIN PANEL ─── */
+function openAdminModal() {
+    const authenticated = sessionStorage.getItem('adminAuth') === '1';
+    document.getElementById('adminLoginWrap').style.display = authenticated ? 'none' : 'block';
+    document.getElementById('adminContent').style.display = authenticated ? 'block' : 'none';
+    if (authenticated) loadAdminStats();
+
+    // Sync toggles
+    document.getElementById('toggleMiniPlayer').checked = localStorage.getItem(MINI_PLAYER_KEY) === 'true';
+    document.getElementById('toggleGalaxy').checked = localStorage.getItem(GALAXY_KEY) !== 'false';
+
+    document.getElementById('adminModal').classList.add('open');
+}
+
+function closeAdminModal() { document.getElementById('adminModal').classList.remove('open'); }
+
+function checkAdminPass() {
+    const pass = document.getElementById('adminPassInput').value;
+    const storedPass = localStorage.getItem(ADMIN_PASS_KEY) || DEFAULT_PASS;
+    const err = document.getElementById('adminError');
+    if (pass === storedPass) {
+        sessionStorage.setItem('adminAuth', '1');
+        document.getElementById('adminLoginWrap').style.display = 'none';
+        document.getElementById('adminContent').style.display = 'block';
+        document.getElementById('adminPassInput').value = '';
+        err.style.display = 'none';
+        loadAdminStats();
+    } else {
+        err.style.display = 'block';
+        document.getElementById('adminPassInput').value = '';
+    }
+}
+
+function adminLock() {
+    sessionStorage.removeItem('adminAuth');
+    closeAdminModal();
+}
+
+function adminToggleMiniPlayer(on) {
+    localStorage.setItem(MINI_PLAYER_KEY, on ? 'true' : 'false');
+    if (on) {
+        if (cardArenaVideoIds.length > 0) loadMiniPlayer();
+    } else {
+        closeMiniPlayer();
+    }
+}
+
+function adminToggleGalaxy(on) {
+    localStorage.setItem(GALAXY_KEY, on ? 'true' : 'false');
+    window.__setGalaxy(on);
+    if (!on) document.getElementById('galaxy-canvas').getContext('2d').clearRect(0, 0, window.innerWidth, window.innerHeight);
+}
+
+function adminResetConfirm() {
+    if (confirm('⚠️ ADMIN RESET: Delete ALL collection data permanently?')) {
+        resetCollection();
+        loadAdminStats();
+    }
+}
+
+function changeAdminPassword() {
+    const np = document.getElementById('newPassInput').value.trim();
+    if (!np) return;
+    localStorage.setItem(ADMIN_PASS_KEY, np);
+    document.getElementById('newPassInput').value = '';
+    const saved = document.getElementById('passSaved');
+    saved.style.display = 'block';
+    setTimeout(() => saved.style.display = 'none', 2500);
+}
+
+function loadAdminStats() {
+    let totalCards = 0;
+    let setsWithCards = 0;
+    Object.keys(collection).forEach(sid => {
+        const n = Object.keys(collection[sid] || {}).length;
+        totalCards += n;
+        if (n > 0) setsWithCards++;
+    });
+    const cacheSize = Object.keys(cardCache).length;
+    document.getElementById('adminStats').innerHTML = `
+        Total cards owned: <strong style="color:var(--g-bright)">${totalCards}</strong><br>
+        Sets with owned cards: <strong style="color:var(--g-bright)">${setsWithCards}</strong><br>
+        Sets loaded (cache): <strong style="color:var(--g-bright)">${cacheSize}</strong><br>
+        Total sets available: <strong style="color:var(--g-bright)">${allSets.length}</strong><br>
+        Mini player: <strong style="color:var(--g-bright)">${localStorage.getItem(MINI_PLAYER_KEY) === 'true' ? 'ON' : 'OFF'}</strong><br>
+        Galaxy BG: <strong style="color:var(--g-bright)">${localStorage.getItem(GALAXY_KEY) !== 'false' ? 'ON' : 'OFF'}</strong>
+    `;
+}
+
+/* ─── INIT ─── */
+async function initializeApp() {
+    loadCollection();
+    await fetchModernSets();
+    await Promise.all([loadPokebeachNews(), loadCardArenaVideos()]);
+
+    if (allSets.length > 0) {
+        const sel = document.getElementById('setSelect');
+        if (!sel.value) sel.value = allSets[0].id;
+        await loadSetCards();
+    }
+
+    console.log('%c👻 PokéCollector v14 — Gengar Edition', 'color:#a855f7;font-family:monospace;font-size:14px');
+}
+
+window.onload = initializeApp;
+</script>
 </body>
 </html>
